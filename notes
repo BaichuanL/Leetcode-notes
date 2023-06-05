@@ -1,0 +1,3903 @@
+// Graph 图论
+// #region
+//图的封装
+class Graph {
+    constructor() {
+        this.vertexes = []; // 存储顶点
+        this.adjList = new Dictionay(); //存储边信息
+    }
+
+    // 添加顶点
+    addVertex(val) {
+        // 添加点
+        this.vertexes.push(val)
+        // 添加点的关系  采用邻接矩阵法 结构用Map
+        this.adjList.set(val, [])
+    }
+
+    // 添加边
+    addEdge(val1, val2) {
+        // 添加边需要传入两个顶点, 因为边是两个顶点之间的边, 边不可能单独存在.
+        // 这里实现的是无向图, 所以这里不考虑方向问题
+        this.adjList.get(val1).push(val2)
+        this.adjList.get(val2).push(val1)
+    }
+
+    // 输出图结构
+    toString() {
+        let res = ''
+        for (let i = 0; i < this.vertexes.length; i++) {
+            res += this.vertexes[i] + "->"
+            let adj = this.adjList.get(this.vertexes[i])
+            for (let j = 0; j < adj.length; j++) {
+                res += adj[j] + ""
+            }
+            res += "\n"
+        }
+        return res
+    }
+}
+// #endregion
+
+
+// 图的遍历 - 广度优先搜索(BFS)/深度优先搜索(DFS)
+// #region
+// 初始化顶点的颜色
+class Graph {
+    initializeColor() {
+        // 白色: 表示该顶点还没有被访问.
+        // 灰色: 表示该顶点被访问过, 但并未被探索过.
+        // 黑色: 表示该顶点被访问过且被完全探索过.
+
+        let colors = []
+        for (let i = 0; i < this.vertexes.length; i++) {
+            colors[this.vertexes[i]] = "white"
+        }
+        return colors
+    }
+
+    // 广度优先搜索
+    bfs(handle) {
+        // 1.初始化颜色
+        let color = this._initializeColor()
+        // 2. 创建队列
+        let queue = new Queue
+        // 3. 将传入的顶点放入队列
+        queue.enqueue(this.vertexes[0])
+        // 4.依赖队列操作数据   队列不为空时一直持续
+        while (!queue.isEmpty()) {
+            // 4.1 拿到队头
+            let qVal = queue.dequeue()
+            //  4.2 拿到队头所关联（相连）的点并设置为访问中状态（灰色）
+            let qAdj = this.adjList.get(qVal)
+            color[qVal] = "gray"
+            // 4.3 将队头关联的点添加到队尾
+            // 这一步是完成bfs的关键，依赖队列的先进先出的特点。
+            for (let i = 0; i < qAdj.length; i++) {
+                let a = qAdj[i]
+                if (color[a] === "white") {
+                    color[a] = "gray"
+                    queue.enqueue(a)
+                }
+            }
+            // 4.5设置访问完的点为黑色。
+            color[qVal] = "black"
+            if (handle) [
+                handle(qVal)
+            ]
+        }
+    }
+
+    // 深度优先搜索
+    dfs(handle) {
+        // 1.初始化颜色
+        let color = this._initializeColor()
+        // 2. 遍历所有顶点，开始访问
+        for (let i = 0; i < this.vertexes.length; i++) {
+            if (color[this.vertexes[i]] === "white") {
+                this._dfsVisit(this.vertexes[i], color, handle)
+            }
+        }
+    }
+    // dfs的递归方法  这里直接使用函数的调用栈
+    _dfsVisit(val, color, handle) {
+        // 1. 将颜色设置为访问中
+        color[val] = "gray"
+        // 2. 执行相应的回调
+        if (handle) {
+            handle(val)
+        }
+        // 3. 拿与该点相邻的点，对每个点操作
+        let adj = this.adjList.get(val)
+        for (let i = 0; i < adj.length; i++) {
+            let w = adj[i]
+            // 如果相邻点未未访问状态，开始访问。
+            if (color[w] === "white") {
+                this._dfsVisit(w, color, handle)
+            }
+        }
+        // 4. 处理完后设置为访问过点。
+        color[val] = "black"
+    }
+}
+// #endregion
+
+
+// 获得数组中的最大值和最小值
+// #region
+let list = [2, 4, 5, 2, 4, 3, 2, 8, 1]
+// apply()获取数组大小值
+console.log(Math.max.apply(Math, list));//8
+console.log(Math.min.apply(Math, list));//1
+//获取两个数最大值，最小值
+console.log(Math.max(1, 2));//2
+console.log(Math.min(1, 2));//1
+// #endregion
+
+
+// 二分查找 - Binary Search - 704
+// #region
+// 左闭右闭区间 [left, right]
+var search = function (nums, target) {
+    // right是数组最后一个数的下标，num[right]在查找范围内，是左闭右闭区间
+    let mid, left = 0, right = nums.length - 1;
+    // 当left=right时，由于nums[right]在查找范围内，所以要包括此情况
+    while (left <= right) {
+        // 位运算 + 防止大数溢出
+        mid = Math.floor((right + left) / 2)
+        // 如果中间数大于目标值，要把中间数排除查找范围，所以右边界更新为mid-1；如果右边界更新为mid，那中间数 还在下次查找范围内
+        if (nums[mid] > target) {
+            right = mid - 1;  // 去左面闭区间寻找
+        } else if (nums[mid] < target) {
+            left = mid + 1;   // 去右面闭区间寻找
+        } else {
+            return mid;
+        }
+    }
+    return -1;
+};
+
+// 左闭右开区间 [left, right)
+var search = function (nums, target) {
+    // right是数组最后一个数的下标+1，nums[right]不在查找范围内，是左闭右开区间
+    let mid, left = 0, right = nums.length;
+    // 当left=right时，由于nums[right]不在查找范围，所以不必包括此情况
+    while (left < right) {
+        // 位运算 + 防止大数溢出
+        mid = left + ((right - left) >> 1);
+        // 如果中间值大于目标值，中间值不应在下次查找的范围内，但中间值的前一个值应在；
+        // 由于right本来就不在查找范围内，所以将右边界更新为中间值，如果更新右边界为mid-1则将中间值的前一个值也踢出了下次寻找范围
+        if (nums[mid] > target) {
+            right = mid;  // 去左区间寻找
+        } else if (nums[mid] < target) {
+            left = mid + 1;   // 去右区间寻找
+        } else {
+            return mid;
+        }
+    }
+    return -1;
+};
+// #endregion
+
+
+// 移除元素 - 双指针法(Two Pointers)
+// #region
+var removeElement = (nums, val) => {
+    let k = 0;
+    for (let i = 0; i < nums.length; i++) {
+        if (nums[i] != val) {
+            nums[k++] = nums[i]
+        }
+    }
+    return k;
+};
+
+//反向删除 - leetcode 884
+const backspaceCompare = (S, T) => {
+    return edit(S) === edit(T);
+
+    function edit(str) {
+        let result = '';
+        let backspaces = 0;
+
+        for (let i = str.length - 1; i >= 0; i -= 1) {
+            if (str[i] === '#') {
+                backspaces += 1;
+            } else if (backspaces > 0) {
+                backspaces -= 1;
+            } else {
+                result = str[i] + result;
+            }
+        }
+
+        return result;
+    }
+};
+// #endregion
+
+
+// 滑动窗口 -209
+// #region
+var minSubArrayLen = function (target, nums) {
+    let start, end
+    start = end = 0
+    let sum = 0
+    let len = nums.length
+    let ans = Infinity
+
+    while (end < len) {
+        sum += nums[end];
+        while (sum >= target) {
+            ans = Math.min(ans, end - start + 1);
+            sum -= nums[start];
+            start++;
+        }
+        end++;
+    }
+    return ans === Infinity ? 0 : ans
+};
+// #endregion 
+
+
+// 滑动窗口 - 59
+// #region
+var generateMatrix = function (n) {
+    let startX = startY = 0;   // 起始位置
+    let loop = Math.floor(n / 2);   // 旋转圈数
+    let mid = Math.floor(n / 2);    // 中间位置
+    let offset = 1;    // 控制每一层填充元素个数
+    let count = 1;     // 更新填充数字
+    let res = new Array(n).fill(0).map(() => new Array(n).fill(0));
+
+    while (loop--) {
+        let row = startX, col = startY;
+        // 上行从左到右（左闭右开）
+        for (; col < startY + n - offset; col++) {
+            res[row][col] = count++;
+        }
+        // 右列从上到下（左闭右开）
+        for (; row < startX + n - offset; row++) {
+            res[row][col] = count++;
+        }
+        // 下行从右到左（左闭右开）
+        for (; col > startY; col--) {
+            res[row][col] = count++;
+        }
+        // 左列做下到上（左闭右开）
+        for (; row > startX; row--) {
+            res[row][col] = count++;
+        }
+
+        // 更新起始位置
+        startX++;
+        startY++;
+
+        // 更新offset
+        offset += 2;
+    }
+    // 如果n为奇数的话，需要单独给矩阵最中间的位置赋值
+    if (n % 2 === 1) {
+        res[mid][mid] = count;
+    }
+    return res;
+};
+
+// m x n
+var spiralOrder = function (matrix) {
+    if (matrix.length == 0) return [];
+
+    let res = [];
+    let row1 = 0, col1 = 0, row2 = matrix.length - 1, col2 = matrix[0].length - 1;
+
+    while (row1 <= row2 && col1 <= col2) {
+        // upper perimeter
+        for (let col = col1; col <= col2; col++) {
+            res.push(matrix[row1][col]);
+        }
+        // right perimeter
+        for (let row = row1 + 1; row <= row2; row++) {
+            res.push(matrix[row][col2]);
+        }
+        if (row1 < row2 && col1 < col2) {
+            // bottom perimeter
+            for (let col = col2 - 1; col >= col1; col--) {
+                res.push(matrix[row2][col]);
+            }
+            // left perimeter
+            for (let row = row2 - 1; row > row1; row--) {
+                res.push(matrix[row][col1]);
+            }
+        }
+
+        row1++, col1++, row2--, col2--;
+    }
+
+    return res;
+};
+// #endregion
+
+
+// 单向链表
+// #region
+class LinkedList {
+    // 初始链表长度为 0
+    length = 0;
+
+    // 初始 head 为 null，head 指向链表的第一个节点
+    head = null;
+
+    // 内部类（链表里的节点 Node）
+    Node = class {
+        data;
+        next = null;
+        constructor(data) {
+            this.data = data;
+        }
+    };
+
+    // append() 往链表尾部追加数据
+    append(data) {
+
+        // 1、创建新节点
+        const newNode = new this.Node(data);
+
+        // 2、追加新节点
+        if (this.length === 0) {
+
+            // 链表长度为 0 时，即只有 head 的时候
+            this.head = newNode;
+
+        } else {
+            // 链表长度大于 0 时，在最后面添加新节点
+            let currentNode = this.head;
+
+            // 当 currentNode.next 不为空时，
+            // 循序依次找最后一个节点，即节点的 next 为 null 时
+            while (currentNode.next !== null) {
+                currentNode = currentNode.next;
+            }
+
+            // 最后一个节点的 next 指向新节点
+            currentNode.next = newNode;
+        }
+
+        // 3、追加完新节点后，链表长度 + 1
+        this.length++;
+    }
+
+    toString() {
+        let currentNode = this.head;
+        let result = '';
+
+        // 遍历所有的节点，拼接为字符串，直到节点为 null
+        while (currentNode) {
+            result += currentNode.data + ' ';
+            currentNode = currentNode.next;
+        }
+
+        return result;
+    }
+
+    // insert() 在指定位置（position）插入节点
+    insert(position, data) {
+        // position 新插入节点的位置
+        // position = 0 表示新插入后是第一个节点
+        // position = 1 表示新插入后是第二个节点，以此类推
+
+        // 1、对 position 进行越界判断，不能小于 0 或大于链表长度
+        if (position < 0 || position > this.length) return false;
+
+        // 2、创建新节点
+        const newNode = new this.Node(data);
+
+        // 3、插入节点
+        if (position === 0) { // position = 0 的情况
+            // 让新节点的 next 指向 原来的第一个节点，即 head
+            newNode.next = this.head;
+
+            // head 赋值为 newNode
+            this.head = newNode;
+        } else { // 0 < position <= length 的情况
+
+            // 初始化一些变量
+            let currentNode = this.head; // 当前节点初始化为 head
+            let previousNode = null; // head 的 上一节点为 null
+            let index = 0; // head 的 index 为 0
+
+            // 在 0 ~ position 之间遍历，不断地更新 currentNode 和 previousNode
+            // 直到找到要插入的位置
+            while (index++ < position) {
+                previousNode = currentNode;
+                currentNode = currentNode.next;
+            }
+
+            // 在当前节点和当前节点的上一节点之间插入新节点，即它们的改变指向
+            newNode.next = currentNode;
+            previousNode.next = newNode;
+        }
+
+        // 更新链表长度
+        this.length++;
+        return newNode;
+    }
+
+    getData(position) {
+        // 1、position 越界判断
+        if (position < 0 || position >= this.length) return null;
+
+        // 2、获取指定 position 节点的 data
+        let currentNode = this.head;
+        let index = 0;
+
+        while (index++ < position) {
+            currentNode = currentNode.next;
+        }
+        // 3、返回 data
+        return currentNode.data;
+    }
+
+    indexOf(data) {
+
+        let currentNode = this.head;
+        let index = 0;
+
+        while (currentNode) {
+            if (currentNode.data === data) {
+                return index;
+            }
+            currentNode = currentNode.next;
+            index++;
+        }
+
+        return -1;
+    }
+
+    update(position, data) {
+        // 涉及到 position 都要进行越界判断
+        // 1、position 越界判断
+        if (position < 0 || position >= this.length) return false;
+
+        // 2、痛过循环遍历，找到指定 position 的节点
+        let currentNode = this.head;
+        let index = 0;
+        while (index++ < position) {
+            currentNode = currentNode.next;
+        }
+
+        // 3、修改节点 data
+        currentNode.data = data;
+
+        return currentNode;
+    }
+
+    removeAt(position) {
+        // 1、position 越界判断
+        if (position < 0 || position >= this.length) return null;
+
+        // 2、删除指定 position 节点
+        let currentNode = this.head;
+        if (position === 0) {
+            // position = 0 的情况
+            this.head = this.head.next;
+
+        } else {
+            // position > 0 的情况
+            // 通过循环遍历，找到指定 position 的节点，赋值到 currentNode
+
+            let previousNode = null;
+            let index = 0;
+
+            while (index++ < position) {
+                previousNode = currentNode;
+                currentNode = currentNode.next;
+            }
+
+            // 巧妙之处，让上一节点的 next 指向到当前的节点的 next，相当于删除了当前节点。
+            previousNode.next = currentNode.next;
+        }
+
+        // 3、更新链表长度 -1
+        this.length--;
+
+        return currentNode;
+    }
+
+    remove(data) {
+        this.removeAt(this.indexOf(data));
+    }
+
+    isEmpty() {
+        return this.length === 0;
+    }
+
+    size() {
+        return this.length;
+    }
+}
+// #endregion
+
+
+// 移除链表元素 -203
+// #region
+var removeElements = function (head, val) {
+    const ret = new ListNode(0, head);
+    let cur = ret;
+    while (cur.next) {
+        if (cur.next.val === val) {
+            cur.next = cur.next.next;
+            continue;
+        }
+        cur = cur.next;
+    }
+    return ret.next;
+};
+// #endregion
+
+
+// 反转链表
+// #region
+// 双指针：
+var reverseList = function (head) {
+    if (!head || !head.next) return head;
+    let temp = null, pre = null, cur = head;
+    while (cur) {
+        temp = cur.next;
+        cur.next = pre;
+        pre = cur;
+        cur = temp;
+    }
+    // temp = cur = null;
+    return pre;
+};
+
+// 递归：
+var reverse = function (pre, head) {
+    if (!head) return pre;
+    const temp = head.next;
+    head.next = pre;
+    pre = head
+    return reverse(pre, temp);
+}
+
+var reverseList = function (head) {
+    return reverse(null, head);
+};
+
+// 递归2
+var reverse = function (head) {
+    if (!head || !head.next) return head;
+    // 从后往前翻
+    const pre = reverse(head.next);
+    head.next = pre.next;
+    pre.next = head;
+    return head;
+}
+
+var reverseList = function (head) {
+    let cur = head;
+    while (cur && cur.next) {
+        cur = cur.next;
+    }
+    reverse(head);
+    return cur;
+};
+// #endregion
+
+
+// 两两交换链表
+// #region
+var swapPairs = function (head) {
+    let ret = new ListNode(0, head), temp = ret;
+    while (temp.next && temp.next.next) {
+        let cur = temp.next.next, pre = temp.next;
+        pre.next = cur.next;
+        cur.next = pre;
+        temp.next = cur;
+        temp = pre;
+    }
+    return ret.next;
+};
+// #endregion
+
+
+// 删除链表倒数第n个
+// #region
+var removeNthFromEnd = function (head, n) {
+    let ret = new ListNode(0, head),
+        slow = fast = ret;
+    while (n--) fast = fast.next;
+    while (fast.next !== null) {
+        fast = fast.next;
+        slow = slow.next
+    };
+    slow.next = slow.next.next;
+    return ret.next;
+};
+// #endregion
+
+
+// 两链表相交 - 160
+// #region
+var getIntersectionNode = function (headA, headB) {
+    let a = headA, b = headB
+    while (a !== b) {
+        a = !a ? headB : a.next
+        b = !b ? headA : b.next
+    }
+    return a
+};
+// #endregion
+
+
+// 环形链表 - 找环入口
+// #region
+var detectCycle = function (head) {
+    if (!head || !head.next) return null;
+    let slow = head.next, fast = head.next.next;
+    while (fast && fast.next) {
+        slow = slow.next;
+        fast = fast.next.next;
+        if (fast == slow) {
+            slow = head;
+            while (fast !== slow) {
+                slow = slow.next;
+                fast = fast.next;
+            }
+            return slow;
+        }
+    }
+    return null;
+};
+// #endregion
+
+
+// 有效的字母异位词
+// #region
+var isAnagram = function (s, t) {
+    if (s.length !== t.length) return false;
+    const resSet = new Array(26).fill(0);
+    const base = "a".charCodeAt();
+    for (const i of s) {
+        resSet[i.charCodeAt() - base]++;
+    }
+    for (const i of t) {
+        if (!resSet[i.charCodeAt() - base]) return false;
+        resSet[i.charCodeAt() - base]--;
+    }
+    return true;
+};
+// #endregion
+
+
+// 查找相同字符
+// #region
+var commonChars = function (words) {
+    let res = []
+    let size = 26
+    let firstHash = new Array(size).fill(0)   // 初始化 hash 数组
+
+    let a = "a".charCodeAt()
+    let firstWord = words[0]
+    for (let i = 0; i < firstWord.length; i++) { // 第 0 个单词的统计
+        let idx = firstWord[i].charCodeAt()
+        firstHash[idx - a] += 1
+    }
+
+    let otherHash = new Array(size).fill(0)    // 初始化 hash 数组
+    for (let i = 1; i < words.length; i++) { // 1-n 个单词统计
+        for (let j = 0; j < words[i].length; j++) {
+            let idx = words[i][j].charCodeAt()
+            otherHash[idx - a] += 1
+        }
+
+        for (let i = 0; i < size; i++) {
+            firstHash[i] = Math.min(firstHash[i], otherHash[i])
+        }
+        otherHash.fill(0)
+    }
+
+    for (let i = 0; i < size; i++) {
+        while (firstHash[i] > 0) {
+            res.push(String.fromCharCode(i + a))
+            firstHash[i]--
+        }
+    }
+    return res
+};
+// #endregion
+
+
+// 两个数组的交集
+// #region
+var intersection = function (nums1, nums2) {
+    const num1Set = new Set(nums1);
+    const num2Set = new Set(nums2);
+
+    const result = [];
+
+    for (var value of num1Set) {
+        if (num2Set.has(value)) {
+            result.push(value);
+        }
+    }
+
+    return result;
+};
+
+//正规一点
+var intersection = function (nums1, nums2) {
+    // 根据数组大小交换操作的数组
+    if (nums1.length < nums2.length) {
+        const _ = nums1;
+        nums1 = nums2;
+        nums2 = _;
+    }
+    const nums1Set = new Set(nums1);
+    const resSet = new Set();
+    // for(const n of nums2) {
+    //     nums1Set.has(n) && resSet.add(n);
+    // }
+    // 循环 比 迭代器快
+    for (let i = nums2.length - 1; i >= 0; i--) {
+        nums1Set.has(nums2[i]) && resSet.add(nums2[i]);
+    }
+    return Array.from(resSet);
+};
+// #endregion
+
+
+// Happy number - 202
+// #region
+// 方法三：使用Set()更简洁
+var getSum = function (n) {
+    let sum = 0;
+    while (n) {
+        sum += (n % 10) ** 2;
+        n = Math.floor(n / 10);
+    }
+    return sum;
+}
+var isHappy = function (n) {
+    let set = new Set();   // Set() 里的数是惟一的
+    // 如果在循环中某个值重复出现，说明此时陷入死循环，也就说明这个值不是快乐数
+    while (n !== 1 && !set.has(n)) {
+        set.add(n);
+        n = getSum(n);
+    }
+    return n === 1;
+};
+// #endregion
+
+
+// 两数之和
+// #region
+var twoSum = function (nums, target) {
+    let hash = {};
+    for (let i = 0; i < nums.length; i++) {  // 遍历当前元素，并在map中寻找是否有匹配的key
+        if (hash[target - nums[i]] !== undefined) {
+            return [i, hash[target - nums[i]]];
+        }
+        hash[nums[i]] = i;   // 如果没找到匹配对，就把访问过的元素和下标加入到map中
+    }
+    return [];
+};
+// #endregion
+
+
+// 四数相加II - 454
+// #region
+var fourSumCount = function (nums1, nums2, nums3, nums4) {
+    const twoSumMap = new Map();
+    let count = 0;
+    // 统计nums1和nums2数组元素之和，和出现的次数，放到map中
+    for (const n1 of nums1) {
+        for (const n2 of nums2) {
+            const sum = n1 + n2;
+            twoSumMap.set(sum, (twoSumMap.get(sum) || 0) + 1)
+        }
+    }
+    // 找到如果 0-(c+d) 在map中出现过的话，就把map中key对应的value也就是出现次数统计出来
+    for (const n3 of nums3) {
+        for (const n4 of nums4) {
+            const sum = n3 + n4;
+            count += (twoSumMap.get(0 - sum) || 0)
+        }
+    }
+
+    return count;
+};
+// #endregion
+
+
+// 三数之和 - 15
+// #region
+var threeSum = function (nums) {
+    const res = [], len = nums.length
+    // 将数组排序
+    nums.sort((a, b) => a - b)
+    for (let i = 0; i < len; i++) {
+        let l = i + 1, r = len - 1, iNum = nums[i]
+        // 数组排过序，如果第一个数大于0直接返回res
+        if (iNum > 0) return res
+        // 去重
+        if (iNum == nums[i - 1]) continue
+        while (l < r) {
+            let lNum = nums[l], rNum = nums[r], threeSum = iNum + lNum + rNum
+            // 三数之和小于0，则左指针向右移动
+            if (threeSum < 0) l++
+            else if (threeSum > 0) r--
+            else {
+                res.push([iNum, lNum, rNum])
+                // 去重
+                while (l < r && nums[l] == nums[l + 1]) {
+                    l++
+                }
+                while (l < r && nums[r] == nums[r - 1]) {
+                    r--
+                }
+                l++
+                r--
+            }
+        }
+    }
+    return res
+};
+// #endregion
+
+
+// 四数之和 - 18
+// #region
+var fourSum = function (nums, target) {
+    const len = nums.length;
+    if (len < 4) return [];
+    nums.sort((a, b) => a - b);
+    const res = [];
+    for (let i = 0; i < len - 3; i++) {
+        // 去重i
+        if (i > 0 && nums[i] === nums[i - 1]) continue;
+        for (let j = i + 1; j < len - 2; j++) {
+            // 去重j
+            if (j > i + 1 && nums[j] === nums[j - 1]) continue;
+            let l = j + 1, r = len - 1;
+            while (l < r) {
+                const sum = nums[i] + nums[j] + nums[l] + nums[r];
+                if (sum < target) { l++; continue }
+                if (sum > target) { r--; continue }
+                res.push([nums[i], nums[j], nums[l], nums[r]]);
+
+                // 对nums[left]和nums[right]去重
+                while (l < r && nums[l] === nums[++l]);
+                while (l < r && nums[r] === nums[--r]);
+            }
+        }
+    }
+    return res;
+};
+// #endregion
+
+
+// 反转字符串 - 541
+// #region
+var reverseStr = function (s, k) {
+    const len = s.length;
+    let resArr = s.split("");
+    for (let i = 0; i < len; i += 2 * k) {  // 每隔 2k 个字符的前 k 个字符进行反转
+        let l = i - 1, r = i + k > len ? len : i + k;
+        while (++l < --r) [resArr[l], resArr[r]] = [resArr[r], resArr[l]];
+    }
+    return resArr.join("");
+};
+// #endregion
+
+
+// 反转字符串里的单词 - 151
+// #region
+function reverseWords(s) {
+    const ret = [];
+    let word = [];
+    for (let i = 0; i < s.length; ++i) {
+        if (s.charAt(i) === ' ') {
+            // We found the space, put word in front (if there is any)
+            word.length > 0 && ret.unshift(word.join(''));
+            // Reset the current word
+            word = [];
+        }
+        else {
+            // Add characters to the current word
+            word.push(s.charAt(i));
+        }
+    }
+    // If there is current word exists, add it in front
+    word.length > 0 && ret.unshift(word.join(''));
+    return ret.join(' ');
+};
+// #endregion
+
+
+// 移动匹配 - 459
+// #region
+var repeatedSubstringPattern = function (s) {
+    let size = s.length;
+    let sFold = s.substr(1, size) + s.substr(0, size - 1);
+    return sFold.indexOf(s) != -1;
+};
+// #endregion
+
+
+// 用栈实现队列 - 232
+// #region
+var MyQueue = function () {
+    this.stackIn = [];
+    this.stackOut = [];
+};
+
+MyQueue.prototype.push = function (x) {
+    this.stackIn.push(x);
+};
+
+MyQueue.prototype.pop = function () {
+    const size = this.stackOut.length;
+    if (size) {
+        return this.stackOut.pop();
+    }
+    while (this.stackIn.length) {
+        this.stackOut.push(this.stackIn.pop());
+    }
+    return this.stackOut.pop();
+};
+
+MyQueue.prototype.peek = function () {
+    const x = this.pop();
+    this.stackOut.push(x);
+    return x;
+};
+
+MyQueue.prototype.empty = function () {
+    return !this.stackIn.length && !this.stackOut.length
+};
+// #endregion
+
+
+// 用队列实现栈 - 225
+// #region
+var MyStack = function () {
+    this.queue = [];
+};
+
+MyStack.prototype.push = function (x) {
+    this.queue.push(x);
+};
+
+MyStack.prototype.pop = function () {
+    let size = this.queue.length;
+    while (size-- > 1) {
+        this.queue.push(this.queue.shift());
+    }
+    return this.queue.shift();
+};
+
+MyStack.prototype.top = function () {
+    const x = this.pop();
+    this.queue.push(x);
+    return x;
+};
+
+MyStack.prototype.empty = function () {
+    return !this.queue.length;
+};
+// #endregion
+
+
+// 有效的括号 - 20
+// #region
+var isValid = function (s) {
+    var stack = [];
+    for (let i = 0; i < s.length; i++) {
+        c = s.charAt(i)
+        switch (c) {
+            case "(": stack.push(")");
+                break;
+            case "{": stack.push("}");
+                break;
+            case "[": stack.push("]");
+                break;
+            default:
+                if (c !== stack.pop()) {
+                    return false
+                }
+        }
+    }
+    return stack.length === 0;
+};
+// #endregion
+
+
+// 删除字符串中的所有相邻重复项 - 1047
+// #region
+var removeDuplicates = function (s) {
+    const stack = [];
+    for (const x of s) {
+        let c = null;
+        if (stack.length && x === (c = stack.pop())) continue;
+        c && stack.push(c);
+        stack.push(x);
+    }
+    return stack.join("");
+};
+// #endregion
+
+
+// 逆波兰表达式求值 - 150
+// #region
+var evalRPN = function (tokens) {
+    const stack = [];
+    for (const token of tokens) {
+        if (isNaN(Number(token))) { // 非数字
+            const n2 = stack.pop(); // 出栈两个数字
+            const n1 = stack.pop();
+            switch (token) { // 判断运算符类型，算出新数入栈
+                case "+":
+                    stack.push(n1 + n2);
+                    break;
+                case "-":
+                    stack.push(n1 - n2);
+                    break;
+                case "*":
+                    stack.push(n1 * n2);
+                    break;
+                case "/":
+                    stack.push(n1 / n2 | 0);
+                    break;
+            }
+        } else { // 数字
+            stack.push(Number(token));
+        }
+    }
+    return stack[0]; // 因没有遇到运算符而待在栈中的结果
+};
+// #endregion
+
+
+// 滑动窗口最大值 - 239 - hard
+// #region
+var maxSlidingWindow = function (nums, k) {
+    class MonoQueue {
+        queue;
+        constructor() {
+            this.queue = [];
+        }
+        enqueue(value) {
+            let back = this.queue[this.queue.length - 1];
+            while (back !== undefined && back < value) {
+                this.queue.pop();
+                back = this.queue[this.queue.length - 1];
+            }
+            this.queue.push(value);
+        }
+        dequeue(value) {
+            let front = this.front();
+            if (front === value) {
+                this.queue.shift();
+            }
+        }
+        front() {
+            return this.queue[0];
+        }
+    }
+    let helperQueue = new MonoQueue();
+    let i = 0, j = 0;
+    let resArr = [];
+    while (j < k) {
+        helperQueue.enqueue(nums[j++]);
+    }
+    resArr.push(helperQueue.front());
+    while (j < nums.length) {
+        helperQueue.enqueue(nums[j]);
+        helperQueue.dequeue(nums[i]);
+        resArr.push(helperQueue.front());
+        i++, j++;
+    }
+    return resArr;
+};
+// #endregion
+
+
+// 前 K 个高频元素 - 347
+// #region
+var topKFrequent = function (nums, k) {
+    const freqMap = new Map();
+    const bucket = [];
+    const result = [];
+
+    for (let num of nums) {
+        freqMap.set(num, (freqMap.get(num) || 0) + 1);
+    }
+
+    for (let [num, freq] of freqMap) {
+        bucket[freq] = (bucket[freq] || new Set()).add(num);
+    }
+
+    for (let i = bucket.length - 1; i >= 0; i--) {
+        if (bucket[i]) result.push(...bucket[i]);
+        console.log(result)
+        if (result.length === k) break;
+    }
+    return result;
+};
+// #endregion
+
+
+// 二叉树
+// #region
+function TreeNode(val, left, right) {
+    this.val = (val === undefined ? 0 : val)
+    this.left = (left === undefined ? null : left)
+    this.right = (right === undefined ? null : right)
+}
+
+// 前序遍历
+var preorderTraversal = function (root) {
+    let res = [];
+    const dfs = function (root) {
+        if (root === null) return;
+        //先序遍历所以从父节点开始
+        res.push(root.val);
+        //递归左子树
+        dfs(root.left);
+        //递归右子树
+        dfs(root.right);
+    }
+    //只使用一个参数 使用闭包进行存储结果
+    dfs(root);
+    return res;
+};
+
+// 中序遍历
+var inorderTraversal = function (root) {
+    let res = [];
+    const dfs = function (root) {
+        if (root === null) {
+            return;
+        }
+        dfs(root.left);
+        res.push(root.val);
+        dfs(root.right);
+    }
+    dfs(root);
+    return res;
+};
+
+//后序遍历
+var postorderTraversal = function (root) {
+    let res = [];
+    const dfs = function (root) {
+        if (root === null) {
+            return;
+        }
+        dfs(root.left);
+        dfs(root.right);
+        res.push(root.val);
+    }
+    dfs(root);
+    return res;
+};
+
+
+// 前序遍历（迭代法）
+// 入栈 右 -> 左
+// 出栈 中 -> 左 -> 右
+var preorderTraversal = function (root, res = []) {
+    if (!root) return res;
+    const stack = [root];
+    let cur = null;
+    while (stack.length) {
+        cur = stack.pop();
+        res.push(cur.val);
+        cur.right && stack.push(cur.right);
+        cur.left && stack.push(cur.left);
+    }
+    return res;
+};
+
+// 中序遍历（迭代法）
+// 入栈 左 -> 右
+// 出栈 左 -> 中 -> 右
+var inorderTraversal = function (root, res = []) {
+    const stack = [];
+    let cur = root;
+    while (stack.length || cur) {
+        if (cur) {
+            stack.push(cur);
+            // 左
+            cur = cur.left;
+        } else {
+            // --> 弹出 中
+            cur = stack.pop();
+            res.push(cur.val);
+            // 右
+            cur = cur.right;
+        }
+    };
+    return res;
+};
+
+// 后序遍历（迭代法）
+// 入栈 左 -> 右
+// 出栈 中 -> 右 -> 左 结果翻转
+var postorderTraversal = function (root, res = []) {
+    if (!root) return res;
+    const stack = [root];
+    let cur = null;
+    do {
+        cur = stack.pop();
+        res.push(cur.val);
+        cur.left && stack.push(cur.left);
+        cur.right && stack.push(cur.right);
+    } while (stack.length);
+    return res.reverse();
+};
+// #endregion
+
+
+// 二叉树层序遍历 - 102 107 637 429 515 116 117 104 111
+// #region
+var levelOrder = function (root) {
+    //二叉树的层序遍历
+    let res = [], queue = [];
+    queue.push(root);
+    if (root === null) {
+        return res;
+    }
+    while (queue.length !== 0) {
+        // 记录当前层级节点数
+        let length = queue.length;
+        //存放每一层的节点 
+        let curLevel = [];
+        for (let i = 0; i < length; i++) {
+            let node = queue.shift();
+            curLevel.push(node.val);
+            // 存放当前层下一层的节点
+            node.left && queue.push(node.left);
+            node.right && queue.push(node.right);
+        }
+        //把每一层的结果放到结果数组
+        res.push(curLevel);
+    }
+    return res;
+};
+// #endregion
+
+
+// 二叉树右方视野 - 199
+// #region
+var rightSideView = function (root) {
+    if (!root) return [];
+    let res = [];
+    pre(root, 0);
+    return res;
+
+    function pre(node, h) {
+        if (!node) return;
+        res[h] = node.val;
+        pre(node.left, h + 1);
+        pre(node.right, h + 1);
+    }
+};
+// #endregion
+
+
+// 翻转二叉树 - 226
+// #region
+// 使用递归版本的前序遍历
+var invertTree = function (root) {
+    // 终止条件
+    if (!root) {
+        return null;
+    }
+    // 交换左右节点
+    const rightNode = root.right;
+    root.right = invertTree(root.left);
+    root.left = invertTree(rightNode);
+    return root;
+};
+
+// 使用迭代版本(统一模板))的前序遍历：
+var invertTree = function (root) {
+    //我们先定义节点交换函数
+    const invertNode = function (root, left, right) {
+        let temp = left;
+        left = right;
+        right = temp;
+        root.left = left;
+        root.right = right;
+    }
+    //使用迭代方法的前序遍历 
+    let stack = [];
+    if (root === null) {
+        return root;
+    }
+    stack.push(root);
+    while (stack.length) {
+        let node = stack.pop();
+        if (node !== null) {
+            //前序遍历顺序中左右  入栈顺序是前序遍历的倒序右左中
+            node.right && stack.push(node.right);
+            node.left && stack.push(node.left);
+            stack.push(node);
+            stack.push(null);
+        } else {
+            node = stack.pop();
+            //节点处理逻辑
+            invertNode(node, node.left, node.right);
+        }
+    }
+    return root;
+};
+
+// 使用层序遍历：
+var invertTree = function (root) {
+    //我们先定义节点交换函数
+    const invertNode = function (root, left, right) {
+        let temp = left;
+        left = right;
+        right = temp;
+        root.left = left;
+        root.right = right;
+    }
+    //使用层序遍历
+    let queue = [];
+    if (root === null) {
+        return root;
+    }
+    queue.push(root);
+    while (queue.length) {
+        let length = queue.length;
+        while (length--) {
+            let node = queue.shift();
+            //节点处理逻辑
+            invertNode(node, node.left, node.right);
+            node.left && queue.push(node.left);
+            node.right && queue.push(node.right);
+        }
+    }
+    return root;
+};
+// #endregion
+
+
+// 对称二叉树 - 101
+// #region
+// 递归
+var isSymmetric = function (root) {
+    // 使用递归遍历左右子树 递归三部曲
+    // 1. 确定递归的参数 root.left root.right和返回值true false 
+    const compareNode = function (left, right) {
+        // 2. 确定终止条件 空的情况
+        if (left === null && right !== null || left !== null && right === null) {
+            return false;
+        } else if (left === null && right === null) {
+            return true;
+        } else if (left.val !== right.val) {
+            return false;
+        }
+        // 3. 确定单层递归逻辑
+        let outSide = compareNode(left.left, right.right);
+        let inSide = compareNode(left.right, right.left);
+        return outSide && inSide;
+    }
+    if (root === null) {
+        return true;
+    }
+    return compareNode(root.left, root.right);
+};
+
+//队列实现迭代
+var isSymmetric = function (root) {
+    // 迭代方法判断是否是对称二叉树
+    // 首先判断root是否为空
+    if (root === null) {
+        return true;
+    }
+    let queue = [];
+    queue.push(root.left);
+    queue.push(root.right);
+    while (queue.length) {
+        let leftNode = queue.shift();    //左节点
+        let rightNode = queue.shift();   //右节点
+        if (leftNode === null && rightNode === null) {
+            continue;
+        }
+        if (leftNode === null || rightNode === null || leftNode.val !== rightNode.val) {
+            return false;
+        }
+        queue.push(leftNode.left);     //左节点左孩子入队
+        queue.push(rightNode.right);   //右节点右孩子入队
+        queue.push(leftNode.right);    //左节点右孩子入队
+        queue.push(rightNode.left);    //右节点左孩子入队
+    }
+
+    return true;
+};
+
+// 栈实现迭代
+var isSymmetric = function (root) {
+    // 迭代方法判断是否是对称二叉树
+    // 首先判断root是否为空
+    if (root === null) {
+        return true;
+    }
+    let stack = [];
+    stack.push(root.left);
+    stack.push(root.right);
+    while (stack.length) {
+        let rightNode = stack.pop();    //左节点
+        let leftNode = stack.pop();       //右节点
+        if (leftNode === null && rightNode === null) {
+            continue;
+        }
+        if (leftNode === null || rightNode === null || leftNode.val !== rightNode.val) {
+            return false;
+        }
+        stack.push(leftNode.left);      //左节点左孩子入队
+        stack.push(rightNode.right);    //右节点右孩子入队
+        stack.push(leftNode.right);     //左节点右孩子入队
+        stack.push(rightNode.left);     //右节点左孩子入队
+    }
+
+    return true;
+};
+// #endregion
+
+
+// 二叉树最大深度 - 559 104
+// #region
+var maxDepth = function (root) {
+    if (!root) return 0;
+    let max = 0;
+    for (let child of root.children) {
+        max = Math.max(max, maxDepth(child));
+    }
+    return max + 1;
+}
+// #endregion
+
+
+// 二叉树最小深度 - 111
+// #region
+// 递归法
+var minDepth1 = function (root) {
+    if (!root) return 0;
+    // 到叶子节点 返回 1
+    if (!root.left && !root.right) return 1;
+    // 只有右节点时 递归右节点
+    if (!root.left) return 1 + minDepth(root.right);
+    // 只有左节点时 递归左节点
+    if (!root.right) return 1 + minDepth(root.left);
+    return Math.min(minDepth(root.left), minDepth(root.right)) + 1;
+};
+
+// 迭代法
+var minDepth = function (root) {
+    if (!root) return 0;
+    const queue = [root];
+    let dep = 0;
+    while (true) {
+        let size = queue.length;
+        dep++;
+        while (size--) {
+            const node = queue.shift();
+            // 到第一个叶子节点 返回 当前深度 
+            if (!node.left && !node.right) return dep;
+            node.left && queue.push(node.left);
+            node.right && queue.push(node.right);
+        }
+    }
+};
+// #endregion
+
+
+// 完全二叉树的节点个数 - 222
+// #region
+// 递归
+var countNodes = function (root) {
+    //递归法计算二叉树节点数
+    // 1. 确定递归函数参数
+    const getNodeSum = function (node) {
+        //2. 确定终止条件
+        if (node === null) {
+            return 0;
+        }
+        //3. 确定单层递归逻辑
+        let leftNum = getNodeSum(node.left);
+        let rightNum = getNodeSum(node.right);
+        return leftNum + rightNum + 1;
+    }
+    return getNodeSum(root);
+};
+
+//迭代(层序遍历)
+var countNodes = function (root) {
+    //层序遍历
+    let queue = [];
+    if (root === null) {
+        return 0;
+    }
+    queue.push(root);
+    let nodeNums = 0;
+    while (queue.length) {
+        let length = queue.length;
+        while (length--) {
+            let node = queue.shift();
+            nodeNums++;
+            node.left && queue.push(node.left);
+            node.right && queue.push(node.right);
+        }
+    }
+    return nodeNums;
+};
+
+//利用完全二叉树性质
+var countNodes = function (root) {
+    //利用完全二叉树的特点
+    if (root === null) {
+        return 0;
+    }
+    let left = root.left;
+    let right = root.right;
+    let leftDepth = 0, rightDepth = 0;
+    while (left) {
+        left = left.left;
+        leftDepth++;
+    }
+    while (right) {
+        right = right.right;
+        rightDepth++;
+    }
+    if (leftDepth == rightDepth) {
+        return Math.pow(2, leftDepth + 1) - 1;
+    }
+    return countNodes(root.left) + countNodes(root.right) + 1;
+};
+// #endregion
+
+
+// 平衡二叉树 - 110
+// #region
+// 递归
+var isBalanced = function (root) {
+    //还是用递归三部曲 + 后序遍历 左右中 当前左子树右子树高度相差大于1就返回-1
+    // 1. 确定递归函数参数以及返回值
+    const getDepth = function (node) {
+        // 2. 确定递归函数终止条件
+        if (node === null) return 0;
+        // 3. 确定单层递归逻辑
+        let leftDepth = getDepth(node.left); //左子树高度
+        // 当判定左子树不为平衡二叉树时,即可直接返回-1
+        if (leftDepth === -1) return -1;
+        let rightDepth = getDepth(node.right); //右子树高度
+        // 当判定右子树不为平衡二叉树时,即可直接返回-1
+        if (rightDepth === -1) return -1;
+        if (Math.abs(leftDepth - rightDepth) > 1) {
+            return -1;
+        } else {
+            return 1 + Math.max(leftDepth, rightDepth);
+        }
+    }
+    return !(getDepth(root) === -1);
+};
+
+// 迭代
+// 获取当前节点的高度
+var getHeight = function (curNode) {
+    let queue = [];
+    if (curNode !== null) queue.push(curNode); // 压入当前元素
+    let depth = 0, res = 0;
+    while (queue.length) {
+        let node = queue[queue.length - 1]; // 取出栈顶
+        if (node !== null) {
+            queue.pop();
+            queue.push(node);   // 中
+            queue.push(null);
+            depth++;
+            node.right && queue.push(node.right);   // 右
+            node.left && queue.push(node.left);     // 左
+        } else {
+            queue.pop();
+            node = queue[queue.length - 1];
+            queue.pop();
+            depth--;
+        }
+        res = res > depth ? res : depth;
+    }
+    return res;
+}
+var isBalanced = function (root) {
+    if (root === null) return true;
+    let queue = [root];
+    while (queue.length) {
+        let node = queue[queue.length - 1]; // 取出栈顶
+        queue.pop();
+        if (Math.abs(getHeight(node.left) - getHeight(node.right)) > 1) {
+            return false;
+        }
+        node.right && queue.push(node.right);
+        node.left && queue.push(node.left);
+    }
+    return true;
+};
+// #endregion
+
+
+// 二叉树的所有路径 - 257
+// #region
+// 递归
+var binaryTreePaths = function (root) {
+    //递归遍历+递归三部曲
+    let res = [];
+    //1. 确定递归函数 函数参数
+    const getPath = function (node, curPath) {
+        //2. 确定终止条件，到叶子节点就终止
+        if (node.left === null && node.right === null) {
+            curPath += node.val;
+            res.push(curPath);
+            return;
+        }
+        //3. 确定单层递归逻辑
+        curPath += node.val + '->';
+        node.left && getPath(node.left, curPath);
+        node.right && getPath(node.right, curPath);
+    }
+    getPath(root, '');
+    return res;
+};
+
+//迭代
+var binaryTreePaths = function (root) {
+    if (!root) return [];
+    const stack = [root], paths = [''], res = [];
+    while (stack.length) {
+        const node = stack.pop();
+        let path = paths.pop();
+        if (!node.left && !node.right) { // 到叶子节点终止, 添加路径到结果中
+            res.push(path + node.val);
+            continue;
+        }
+        path += node.val + '->';
+        if (node.right) { // 右节点存在
+            stack.push(node.right);
+            paths.push(path);
+        }
+        if (node.left) { // 左节点存在
+            stack.push(node.left);
+            paths.push(path);
+        }
+    }
+    return res;
+};
+// #endregion
+
+
+// 相同的树 - 100
+// #region
+var isSameTree = function (p, q) {
+    if (p === null && q === null) {
+        return true;
+    } else if (p === null || q === null) {
+        return false;
+    } else if (p.val !== q.val) {
+        return false;
+    } else {
+        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+    }
+};
+// #endregion
+
+
+// 左叶子之和 - 404
+// #region
+// 递归
+var sumOfLeftLeaves = function (root) {
+    //采用后序遍历 递归遍历
+    // 1. 确定递归函数参数
+    const nodesSum = function (node) {
+        // 2. 确定终止条件
+        if (node === null) {
+            return 0;
+        }
+        let leftValue = nodesSum(node.left);
+        let rightValue = nodesSum(node.right);
+        // 3. 单层递归逻辑
+        let midValue = 0;
+        if (node.left && node.left.left === null && node.left.right === null) {
+            midValue = node.left.val;
+        }
+        let sum = midValue + leftValue + rightValue;
+        return sum;
+    }
+    return nodesSum(root);
+};
+
+//迭代
+var sumOfLeftLeaves = function (root) {
+    //采用层序遍历
+    if (root === null) {
+        return null;
+    }
+    let queue = [];
+    let sum = 0;
+    queue.push(root);
+    while (queue.length) {
+        let node = queue.shift();
+        if (node.left !== null && node.left.left === null && node.left.right === null) {
+            sum += node.left.val;
+        }
+        node.left && queue.push(node.left);
+        node.right && queue.push(node.right);
+    }
+    return sum;
+};
+// #endregion
+
+
+// 找树左下角的值 - 512
+// #region
+// 递归
+var findBottomLeftValue = function (root) {
+    //首先考虑递归遍历 前序遍历 找到最大深度的叶子节点即可
+    let maxPath = 0, resNode = null;
+    // 1. 确定递归函数的函数参数
+    const dfsTree = function (node, curPath) {
+        // 2. 确定递归函数终止条件
+        if (node.left === null && node.right === null) {
+            if (curPath > maxPath) {
+                maxPath = curPath;
+                resNode = node.val;
+            }
+        }
+        node.left && dfsTree(node.left, curPath + 1);
+        node.right && dfsTree(node.right, curPath + 1);
+    }
+    dfsTree(root, 1);
+    return resNode;
+};
+
+//层序遍历
+var findBottomLeftValue = function (root) {
+    //考虑层序遍历 记录最后一行的第一个节点
+    let queue = [];
+    if (root === null) {
+        return null;
+    }
+    queue.push(root);
+    let resNode;
+    while (queue.length) {
+        let length = queue.length;
+        for (let i = 0; i < length; i++) {
+            let node = queue.shift();
+            if (i === 0) {
+                resNode = node.val;
+            }
+            node.left && queue.push(node.left);
+            node.right && queue.push(node.right);
+        }
+    }
+    return resNode;
+};
+// #endregion
+
+
+// 路径总和 - 112 113
+// #region
+// 递归
+let haspathsum = function (root, targetsum) {
+    // 递归法
+    const traversal = (node, cnt) => {
+        // 遇到叶子节点，并且计数为0
+        if (cnt === 0 && !node.left && !node.right) return true;
+        // 遇到叶子节点而没有找到合适的边(计数不为0)，直接返回
+        if (!node.left && !node.right) return false;
+
+        //  左（空节点不遍历）.遇到叶子节点返回true，则直接返回true
+        if (node.left && traversal(node.left, cnt - node.left.val)) return true;
+        //  右（空节点不遍历）  
+        if (node.right && traversal(node.right, cnt - node.right.val)) return true;
+        return false;
+    };
+    if (!root) return false;
+    return traversal(root, targetsum - root.val);
+
+    // 精简代码:
+    // if (!root) return false;
+    // if (!root.left && !root.right && targetsum === root.val) return true;
+    // return haspathsum(root.left, targetsum - root.val) || haspathsum(root.right, targetsum - root.val);
+};
+
+// 迭代
+let hasPathSum = function (root, targetSum) {
+    if (root === null) return false;
+    let nodeArr = [root];
+    let valArr = [0];
+    while (nodeArr.length) {
+        let curNode = nodeArr.shift();
+        let curVal = valArr.shift();
+        curVal += curNode.val;
+        // 为叶子结点，且和等于目标数，返回true
+        if (curNode.left === null && curNode.right === null && curVal === targetSum) {
+            return true;
+        }
+        // 左节点，将当前的数值也对应记录下来
+        if (curNode.left) {
+            nodeArr.push(curNode.left);
+            valArr.push(curVal);
+        }
+        // 右节点，将当前的数值也对应记录下来
+        if (curNode.right) {
+            nodeArr.push(curNode.right);
+            valArr.push(curVal);
+        }
+    }
+    return false;
+};
+
+// 递归 113
+let pathsum = function (root, targetsum) {
+    // 递归法
+    // 要遍历整个树找到所有路径，所以递归函数不需要返回值, 与112不同
+    const res = [];
+    const travelsal = (node, cnt, path) => {
+        // 遇到了叶子节点且找到了和为sum的路径
+        if (cnt === 0 && !node.left && !node.right) {
+            res.push([...path]); // 不能写res.push(path), 要深拷贝
+            return;
+        }
+        if (!node.left && !node.right) return; // 遇到叶子节点而没有找到合适的边，直接返回
+        // 左 （空节点不遍历）
+        if (node.left) {
+            path.push(node.left.val);
+            travelsal(node.left, cnt - node.left.val, path); // 递归
+            path.pop(); // 回溯
+        }
+        // 右 （空节点不遍历）
+        if (node.right) {
+            path.push(node.right.val);
+            travelsal(node.right, cnt - node.right.val, path); // 递归
+            path.pop(); // 回溯
+        }
+        return;
+    };
+    if (!root) return res;
+    travelsal(root, targetsum - root.val, [root.val]); // 把根节点放进路径
+    return res;
+};
+
+// 迭代 113
+let pathSum = function (root, targetSum) {
+    if (root === null) return [];
+    let nodeArr = [root];
+    let resArr = []; // 记录符合目标和的返回路径
+    let tempArr = [[]]; // 对应路径
+    let countArr = [0]; //对应和
+    while (nodeArr.length) {
+        let curNode = nodeArr.shift();
+        let curVal = countArr.shift();
+        let curNodeArr = tempArr.shift();
+        curVal += curNode.val;
+        curNodeArr.push(curNode.val);
+        // 为叶子结点，且和等于目标数，将此次结果数组push进返回数组中
+        if (curNode.left === null && curNode.right === null && curVal === targetSum) {
+            resArr.push(curNodeArr);
+        }
+        // 左节点，将当前的和及对应路径也对应记录下来
+        if (curNode.left) {
+            nodeArr.push(curNode.left);
+            countArr.push(curVal);
+            tempArr.push([...curNodeArr]);
+        }
+        // 右节点，将当前的和及对应路径也对应记录下来
+        if (curNode.right) {
+            nodeArr.push(curNode.right);
+            countArr.push(curVal);
+            tempArr.push([...curNodeArr]);
+        }
+    }
+    return resArr;
+};
+// #endregion
+
+
+// 从中序与后序遍历序列构造二叉树 - 106 105
+// #region
+// 106
+var buildTree = function (inorder, postorder) {
+    if (!inorder.length) return null;
+    const rootVal = postorder.pop(); // 从后序遍历的数组中获取中间节点的值， 即数组最后一个值
+    let rootIndex = inorder.indexOf(rootVal); // 获取中间节点在中序遍历中的下标
+    const root = new TreeNode(rootVal); // 创建中间节点
+    root.left = buildTree(inorder.slice(0, rootIndex), postorder.slice(0, rootIndex)); // 创建左节点
+    root.right = buildTree(inorder.slice(rootIndex + 1), postorder.slice(rootIndex)); // 创建右节点
+    return root;
+};
+
+// 105
+var buildTree = function (preorder, inorder) {
+    if (!preorder.length) return null;
+    const rootVal = preorder.shift(); // 从前序遍历的数组中获取中间节点的值， 即数组第一个值
+    const index = inorder.indexOf(rootVal); // 获取中间节点在中序遍历中的下标
+    const root = new TreeNode(rootVal); // 创建中间节点
+    root.left = buildTree(preorder.slice(0, index), inorder.slice(0, index)); // 创建左节点
+    root.right = buildTree(preorder.slice(index), inorder.slice(index + 1)); // 创建右节点
+    return root;
+};
+// #endregion
+
+
+// 合并二叉树 - 617
+// #region
+// 递归
+var mergeTrees = function (root1, root2) {
+    const preOrder = (root1, root2) => {
+        if (!root1)
+            return root2
+        if (!root2)
+            return root1;
+        root1.val += root2.val;
+        root1.left = preOrder(root1.left, root2.left);
+        root1.right = preOrder(root1.right, root2.right);
+        return root1;
+    }
+    return preOrder(root1, root2);
+};
+
+//迭代
+var mergeTrees = function (root1, root2) {
+    if (root1 === null) return root2;
+    if (root2 === null) return root1;
+
+    let queue = [];
+    queue.push(root1);
+    queue.push(root2);
+    while (queue.length) {
+        let node1 = queue.shift();
+        let node2 = queue.shift();;
+        node1.val += node2.val;
+        if (node1.left !== null && node2.left !== null) {
+            queue.push(node1.left);
+            queue.push(node2.left);
+        }
+        if (node1.right !== null && node2.right !== null) {
+            queue.push(node1.right);
+            queue.push(node2.right);
+        }
+        if (node1.left === null && node2.left !== null) {
+            node1.left = node2.left;
+        }
+        if (node1.right === null && node2.right !== null) {
+            node1.right = node2.right;
+        }
+    }
+    return root1;
+};
+// #endregion
+
+
+// 二叉搜索树中的搜索 - 700
+// #region
+// 递归
+var searchBST = function (root, val) {
+    if (!root || root.val === val) {
+        return root;
+    }
+    if (root.val > val)
+        return searchBST(root.left, val);
+    if (root.val < val)
+        return searchBST(root.right, val);
+};
+
+//迭代
+var searchBST = function (root, val) {
+    while (root !== null) {
+        if (root.val > val)
+            root = root.left;
+        else if (root.val < val)
+            root = root.right;
+        else
+            return root;
+    }
+    return null;
+};
+// #endregion
+
+
+// 验证二叉搜索树 - 98
+// #region
+// 辅助数组
+var isValidBST = function (root) {
+    let arr = [];
+    const buildArr = (root) => {
+        if (root) {
+            buildArr(root.left);
+            arr.push(root.val);
+            buildArr(root.right);
+        }
+    }
+    buildArr(root);
+    for (let i = 1; i < arr.length; ++i) {
+        if (arr[i] <= arr[i - 1])
+            return false;
+    }
+    return true;
+};
+
+// 递归
+let pre = null;
+var isValidBST = function (root) {
+    let pre = null;
+    const inOrder = (root) => {
+        if (root === null)
+            return true;
+        let left = inOrder(root.left);
+
+        if (pre !== null && pre.val >= root.val)
+            return false;
+        pre = root;
+
+        let right = inOrder(root.right);
+        return left && right;
+    }
+    return inOrder(root);
+};
+// #endregion
+
+
+// 二叉搜索树的最小绝对差 - 530
+// #region
+// 递归
+var getMinimumDifference = function (root) {
+    let arr = [];
+    const buildArr = (root) => {
+        if (root) {
+            buildArr(root.left);
+            arr.push(root.val);
+            buildArr(root.right);
+        }
+    }
+    buildArr(root);
+    let diff = arr[arr.length - 1];
+    for (let i = 1; i < arr.length; ++i) {
+        if (diff > arr[i] - arr[i - 1])
+            diff = arr[i] - arr[i - 1];
+    }
+    return diff;
+};
+
+// 递归
+var getMinimumDifference = function (root) {
+    let res = Infinity
+    let preNode = null
+    // 中序遍历
+    const inorder = (node) => {
+        if (!node) return
+        inorder(node.left)
+        // 更新res
+        if (preNode) res = Math.min(res, node.val - preNode.val)
+        // 记录前一个节点         
+        preNode = node
+        inorder(node.right)
+    }
+    inorder(root)
+    return res
+}
+// #endregion
+
+
+// 二叉搜索树中的众数 - 501
+// #region
+// 使用额外空间map的方法
+var findMode = function (root) {
+    // 使用递归中序遍历
+    let map = new Map();
+    // 1. 确定递归函数以及函数参数
+    const traverTree = function (root) {
+        // 2. 确定递归终止条件
+        if (root === null) {
+            return;
+        }
+        traverTree(root.left);
+        // 3. 单层递归逻辑
+        map.set(root.val, map.has(root.val) ? map.get(root.val) + 1 : 1);
+        traverTree(root.right);
+    }
+    traverTree(root);
+    //上面把数据都存储到map
+    //下面开始寻找map里面的
+    // 定义一个最大出现次数的初始值为root.val的出现次数
+    let maxCount = map.get(root.val);
+    // 定义一个存放结果的数组res
+    let res = [];
+    for (let [key, value] of map) {
+        // 如果当前值等于最大出现次数就直接在res增加该值
+        if (value === maxCount) {
+            res.push(key);
+        }
+        // 如果value的值大于原本的maxCount就清空res的所有值，因为找到了更大的
+        if (value > maxCount) {
+            res = [];
+            maxCount = value;
+            res.push(key);
+        }
+    }
+    return res;
+};
+
+// 不使用额外空间，利用二叉树性质，中序遍历
+var findMode = function (root) {
+    // 不使用额外空间，使用中序遍历,设置出现最大次数初始值为1
+    let count = 0, maxCount = 1;
+    let pre = root, res = [];
+    // 1.确定递归函数及函数参数
+    const travelTree = function (cur) {
+        // 2. 确定递归终止条件
+        if (cur === null) {
+            return;
+        }
+        travelTree(cur.left);
+        // 3. 单层递归逻辑
+        if (pre.val === cur.val) {
+            count++;
+        } else {
+            count = 1;
+        }
+        pre = cur;
+        if (count === maxCount) {
+            res.push(cur.val);
+        }
+        if (count > maxCount) {
+            res = [];
+            maxCount = count;
+            res.push(cur.val);
+        }
+        travelTree(cur.right);
+    }
+    travelTree(root);
+    return res;
+};
+// #endregion
+
+
+// 公共祖先问题 - 236
+// #region
+var lowestCommonAncestor = function (root, p, q) {
+    // 使用递归的方法
+    // 需要从下到上，所以使用后序遍历
+    // 1. 确定递归的函数
+    const travelTree = function (root, p, q) {
+        // 2. 确定递归终止条件
+        if (root === null || root === p || root === q) {
+            return root;
+        }
+        // 3. 确定递归单层逻辑
+        let left = travelTree(root.left, p, q);
+        let right = travelTree(root.right, p, q);
+        if (left !== null && right !== null) {
+            return root;
+        }
+        if (left === null) {
+            return right;
+        }
+        return left;
+    }
+    return travelTree(root, p, q);
+};
+// #endregion
+
+
+// 搜索树的最近公共祖先 - 235
+// #region
+// 递归
+var lowestCommonAncestor = function (root, p, q) {
+    // 使用递归的方法
+    // 1. 使用给定的递归函数lowestCommonAncestor
+    // 2. 确定递归终止条件
+    if (root === null) {
+        return root;
+    }
+    if (root.val > p.val && root.val > q.val) {
+        // 向左子树查询
+        return root.left = lowestCommonAncestor(root.left, p, q);
+    }
+    if (root.val < p.val && root.val < q.val) {
+        // 向右子树查询
+        return root.right = lowestCommonAncestor(root.right, p, q);
+    }
+    return root;
+};
+
+// 迭代
+var lowestCommonAncestor = function (root, p, q) {
+    // 使用迭代的方法
+    while (root) {
+        if (root.val > p.val && root.val > q.val) {
+            root = root.left;
+        } else if (root.val < p.val && root.val < q.val) {
+            root = root.right;
+        } else {
+            return root;
+        }
+
+    }
+    return null;
+};
+// #endregion
+
+
+// 二叉搜索树中的插入操作 - 701
+// #region
+// 递归
+var insertIntoBST = function (root, val) {
+    const setInOrder = (root, val) => {
+        if (root === null) {
+            let node = new TreeNode(val);
+            return node;
+        }
+        if (root.val > val)
+            root.left = setInOrder(root.left, val);
+        else if (root.val < val)
+            root.right = setInOrder(root.right, val);
+        return root;
+    }
+    return setInOrder(root, val);
+};
+
+// 迭代
+var insertIntoBST = function (root, val) {
+    if (root === null) {
+        root = new TreeNode(val);
+    } else {
+        let parent = new TreeNode(0);
+        let cur = root;
+        while (cur) {
+            parent = cur;
+            if (cur.val > val)
+                cur = cur.left;
+            else
+                cur = cur.right;
+        }
+        let node = new TreeNode(val);
+        if (parent.val > val)
+            parent.left = node;
+        else
+            parent.right = node;
+    }
+    return root;
+};
+// #endregion
+
+
+// 删除二叉搜索树中的节点 - 450
+// #region
+// 递归
+var deleteNode = function (root, key) {
+    if (!root) return null;
+    if (key > root.val) {
+        root.right = deleteNode(root.right, key);
+        return root;
+    } else if (key < root.val) {
+        root.left = deleteNode(root.left, key);
+        return root;
+    } else {
+        // 场景1: 该节点是叶节点
+        if (!root.left && !root.right) {
+            return null
+        }
+        // 场景2: 有一个孩子节点不存在
+        if (root.left && !root.right) {
+            return root.left;
+        } else if (root.right && !root.left) {
+            return root.right;
+        }
+        // 场景3: 左右节点都存在
+        const rightNode = root.right;
+        // 获取最小值节点
+        const minNode = getMinNode(rightNode);
+        // 将待删除节点的值替换为最小值节点值
+        root.val = minNode.val;
+        // 删除最小值节点
+        root.right = deleteNode(root.right, minNode.val);
+        return root;
+    }
+};
+function getMinNode(root) {
+    while (root.left) {
+        root = root.left;
+    }
+    return root;
+}
+
+// 迭代
+var deleteNode = function (root, key) {
+    const deleteOneNode = target => {
+        if (!target) return target
+        if (!target.right) return target.left
+        let cur = target.right
+        while (cur.left) {
+            cur = cur.left
+        }
+        cur.left = target.left
+        return target.right
+    }
+
+    if (!root) return root
+    let cur = root
+    let pre = null
+    while (cur) {
+        if (cur.val === key) break
+        pre = cur
+        cur.val > key ? cur = cur.left : cur = cur.right
+    }
+    if (!pre) {
+        return deleteOneNode(cur)
+    }
+    if (pre.left && pre.left.val === key) {
+        pre.left = deleteOneNode(cur)
+    }
+    if (pre.right && pre.right.val === key) {
+        pre.right = deleteOneNode(cur)
+    }
+    return root
+}
+// #endregion
+
+
+// 修剪一棵搜索树 - 669
+// #region
+// 递归
+var trimBST = function (root, low, high) {
+    if (root === null) {
+        return null;
+    }
+    if (root.val < low) {
+        let right = trimBST(root.right, low, high);
+        return right;
+    }
+    if (root.val > high) {
+        let left = trimBST(root.left, low, high);
+        return left;
+    }
+    root.left = trimBST(root.left, low, high);
+    root.right = trimBST(root.right, low, high);
+    return root;
+}
+
+// 迭代
+var trimBST = function (root, low, high) {
+    if (root === null) {
+        return null;
+    }
+    while (root !== null && (root.val < low || root.val > high)) {
+        if (root.val < low) {
+            root = root.right;
+        } else {
+            root = root.left;
+        }
+    }
+    let cur = root;
+    while (cur !== null) {
+        while (cur.left && cur.left.val < low) {
+            cur.left = cur.left.right;
+        }
+        cur = cur.left;
+    }
+    cur = root;
+    //判断右子树大于high的情况
+    while (cur !== null) {
+        while (cur.right && cur.right.val > high) {
+            cur.right = cur.right.left;
+        }
+        cur = cur.right;
+    }
+    return root;
+};
+// #endregion
+
+
+// 将有序数组转换为二叉搜索树 - 108
+// #region
+// 递归
+var sortedArrayToBST = function (nums) {
+    const buildTree = (Arr, left, right) => {
+        if (left > right)
+            return null;
+
+        let mid = Math.floor(left + (right - left) / 2);
+
+        let root = new TreeNode(Arr[mid]);
+        root.left = buildTree(Arr, left, mid - 1);
+        root.right = buildTree(Arr, mid + 1, right);
+        return root;
+    }
+    return buildTree(nums, 0, nums.length - 1);
+};
+
+//迭代
+var sortedArrayToBST = function (nums) {
+    if (nums.length === 0) {
+        return null;
+    }
+    let root = new TreeNode(0);       //初始根节点
+    let nodeQue = [root];             //放遍历的节点,并初始化
+    let leftQue = [0];                //放左区间的下标,初始化
+    let rightQue = [nums.length - 1];   // 放右区间的下标
+
+    while (nodeQue.length) {
+        let curNode = nodeQue.pop();
+        let left = leftQue.pop();
+        let right = rightQue.pop();
+        let mid = left + Math.floor((right - left) / 2);
+
+        curNode.val = nums[mid];      //将下标为mid的元素给中间节点
+
+        //         处理左区间
+        if (left <= mid - 1) {
+            curNode.left = new TreeNode(0);
+            nodeQue.push(curNode.left);
+            leftQue.push(left);
+            rightQue.push(mid - 1);
+        }
+
+        //         处理右区间
+        if (right >= mid + 1) {
+            curNode.right = new TreeNode(0);
+            nodeQue.push(curNode.right);
+            leftQue.push(mid + 1);
+            rightQue.push(right);
+        }
+    }
+    return root;
+};
+// #endregion
+
+
+// 把二叉搜索树转换为累加树 - 538
+// #region
+// 递归
+// #endregion
+
+
+// 将有序数组转换为二叉搜索树 - 108
+// #region
+// 递归
+var convertBST = function (root) {
+    let pre = 0;
+    const ReverseInOrder = (cur) => {
+        if (cur) {
+            ReverseInOrder(cur.right);
+            cur.val += pre;
+            pre = cur.val;
+            ReverseInOrder(cur.left);
+        }
+    }
+    ReverseInOrder(root);
+    return root;
+};
+
+//迭代
+var convertBST = function (root) {
+    let pre = 0;
+    let cur = root;
+    let stack = [];
+    while (cur !== null || stack.length !== 0) {
+        while (cur !== null) {
+            stack.push(cur);
+            cur = cur.right;
+        }
+        cur = stack.pop();
+        cur.val += pre;
+        pre = cur.val;
+        cur = cur.left;
+    }
+    return root;
+};
+// #endregion
+
+
+// 组合 - 77
+// #region
+let result = []
+let path = []
+var combine = function (n, k) {
+    result = []
+    combineHelper(n, k, 1)
+    return result
+};
+const combineHelper = (n, k, startIndex) => {
+    if (path.length === k) {
+        result.push([...path])
+        return
+    }
+    for (let i = startIndex; i <= n - (k - path.length) + 1; ++i) {
+        path.push(i)
+        combineHelper(n, k, i + 1)
+        path.pop()
+    }
+}
+// #endregion
+
+
+// 组合总和III - 216
+// #region
+var combinationSum3 = function (k, n) {
+    let res = [];
+    let path = [];
+    let sum = 0;
+    const dfs = (path, index) => {
+        // 剪枝操作
+        if (sum > n) {
+            return
+        }
+        if (path.length == k) {
+            if (sum == n) {
+                res.push([...path]);
+                return
+            }
+        }
+        for (let i = index; i <= 9 - (k - path.length) + 1; i++) {
+            path.push(i);
+            sum = sum + i;
+            index += 1;
+            dfs(path, index);
+            sum -= i
+            path.pop()
+        }
+    }
+    dfs(path, 1);
+    return res
+};
+// #endregion
+
+
+// 电话号码的字母组合 - 17
+// #region
+var letterCombinations = function (digits) {
+    const k = digits.length;
+    const map = ["", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"];
+    if (!k) return [];
+    if (k === 1) return map[digits].split("");
+
+    const res = [], path = [];
+    backtracking(digits, k, 0);
+    return res;
+
+    function backtracking(n, k, a) {
+        if (path.length === k) {
+            res.push(path.join(""));
+            return;
+        }
+        for (const v of map[n[a]]) {
+            path.push(v);
+            backtracking(n, k, a + 1);
+            path.pop();
+        }
+    }
+};
+// #endregion
+
+
+// 组合总和 - 39
+// #region
+var combinationSum = function (candidates, target) {
+    const res = [], path = [];
+    candidates.sort((a, b) => a - b); // 排序
+    backtracking(0, 0);
+    return res;
+    function backtracking(j, sum) {
+        if (sum === target) {
+            res.push(Array.from(path));
+            return;
+        }
+        for (let i = j; i < candidates.length; i++) {
+            const n = candidates[i];
+            if (n > target - sum) break;
+            path.push(n);
+            sum += n;
+            backtracking(i, sum);
+            path.pop();
+            sum -= n;
+        }
+    }
+};
+// #endregion
+
+
+// 组合总和II - 40
+// #region
+var combinationSum2 = function (candidates, target) {
+    const res = []; path = [], len = candidates.length;
+    candidates.sort((a, b) => a - b);
+    backtracking(0, 0);
+    return res;
+    function backtracking(sum, i) {
+        if (sum === target) {
+            res.push(Array.from(path));
+            return;
+        }
+        for (let j = i; j < len; j++) {
+            const n = candidates[j];
+            if (j > i && candidates[j] === candidates[j - 1]) {
+                //若当前元素和前一个元素相等
+                //则本次循环结束，防止出现重复组合
+                continue;
+            }
+            //如果当前元素值大于目标值-总和的值
+            //由于数组已排序，那么该元素之后的元素必定不满足条件
+            //直接终止当前层的递归
+            if (n > target - sum) break;
+            path.push(n);
+            sum += n;
+            backtracking(sum, j + 1);
+            path.pop();
+            sum -= n;
+        }
+    }
+};
+// #endregion
+
+
+// 分割回文串 - 131
+// #region
+const isPalindrome = (s, l, r) => {
+    for (let i = l, j = r; i < j; i++, j--) {
+        if (s[i] !== s[j]) return false;
+    }
+    return true;
+}
+
+var partition = function (s) {
+    const res = [], path = [], len = s.length;
+    backtracking(0);
+    return res;
+    function backtracking(startIndex) {
+        if (startIndex >= len) {
+            res.push(Array.from(path));
+            return;
+        }
+        for (let i = startIndex; i < len; i++) {
+            if (!isPalindrome(s, startIndex, i)) continue;
+            path.push(s.slice(startIndex, i + 1));
+            backtracking(i + 1);
+            path.pop();
+        }
+    }
+};
+// #endregion
+
+
+// 复原IP地址 - 93
+// #region
+var restoreIpAddresses = function (s) {
+    const res = [], path = [];
+    backtracking(0, 0)
+    return res;
+    function backtracking(i) {
+        const len = path.length;
+        if (len > 4) return;
+        if (len === 4 && i === s.length) {
+            res.push(path.join("."));
+            return;
+        }
+        for (let j = i; j < s.length; j++) {
+            const str = s.slice(i, j + 1);
+            if (str.length > 3 || +str > 255) break;
+            if (str.length > 1 && str[0] === "0") break;
+            path.push(str);
+            backtracking(j + 1);
+            path.pop()
+        }
+    }
+};
+// #endregion
+
+
+// 子集 - 78
+// #region
+var subsets = function (nums) {
+    let result = []
+    let path = []
+    function backtracking(startIndex) {
+        result.push([...path])
+        for (let i = startIndex; i < nums.length; i++) {
+            path.push(nums[i])
+            backtracking(i + 1)
+            path.pop()
+        }
+    }
+    backtracking(0)
+    return result
+};
+// #endregion
+
+
+// 子集II - 90
+// #region
+var subsetsWithDup = function (nums) {
+    let result = []
+    let path = []
+    nums.sort()
+    function backtracking(startIndex) {
+        result.push([...path])
+        for (let i = startIndex; i < nums.length; i++) {
+            if (i > startIndex && nums[i] === nums[i - 1]) continue
+            path.push(nums[i])
+            backtracking(i + 1)
+            path.pop()
+        }
+    }
+    backtracking(0)
+    return result
+};
+// #endregion
+
+
+// 递增子序列 - 491
+// #region
+var findSubsequences = function (nums) {
+    let result = []
+    let path = []
+    function backtracking(startIndex) {
+        if (path.length > 1) {
+            result.push([...path])
+        }
+        const unique = new Set()
+        for (let i = startIndex; i < nums.length; i++) {
+            if (nums[i] < path[path.length - 1]) continue
+            if (unique.has(nums[i])) continue
+            unique.add(nums[i])
+            path.push(nums[i])
+            backtracking(i + 1)
+            path.pop()
+        }
+    }
+    backtracking(0)
+    return result
+};
+// #endregion
+
+
+// 全排列 - 46
+// #region
+var permute = function (nums) {
+    const res = [], path = [];
+    backtracking(nums, nums.length, []);
+    return res;
+
+    function backtracking(n, k, used) {
+        if (path.length === k) {
+            res.push(Array.from(path));
+            return;
+        }
+        for (let i = 0; i < k; i++) {
+            if (used[i]) continue;
+            path.push(n[i]);
+            used[i] = true; // 同支
+            backtracking(n, k, used);
+            path.pop();
+            used[i] = false;
+        }
+    }
+};
+// #endregion
+
+
+// 全排列 II - 47
+// #region
+var permuteUnique = function (nums) {
+    nums.sort((a, b) => {
+        return a - b
+    })
+    let result = []
+    let path = []
+
+    function backtracing(used) {
+        if (path.length === nums.length) {
+            result.push([...path])
+            return
+        }
+        for (let i = 0; i < nums.length; i++) {
+            if (i > 0 && nums[i] === nums[i - 1] && !used[i - 1]) {
+                continue
+            }
+            if (!used[i]) {
+                used[i] = true
+                path.push(nums[i])
+                backtracing(used)
+                path.pop()
+                used[i] = false
+            }
+
+
+        }
+    }
+    backtracing([])
+    return result
+};
+// #endregion
+
+
+// N皇后 - 51H
+// #region
+var solveNQueens = function (n) {
+    function isValid(row, col, chessBoard, n) {
+
+        for (let i = 0; i < row; i++) {
+            if (chessBoard[i][col] === 'Q') {
+                return false
+            }
+        }
+
+        for (let i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+            if (chessBoard[i][j] === 'Q') {
+                return false
+            }
+        }
+
+        for (let i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+            if (chessBoard[i][j] === 'Q') {
+                return false
+            }
+        }
+        return true
+    }
+
+    function transformChessBoard(chessBoard) {
+        let chessBoardBack = []
+        chessBoard.forEach(row => {
+            let rowStr = ''
+            row.forEach(value => {
+                rowStr += value
+            })
+            chessBoardBack.push(rowStr)
+        })
+
+        return chessBoardBack
+    }
+
+    let result = []
+    function backtracing(row, chessBoard) {
+        if (row === n) {
+            result.push(transformChessBoard(chessBoard))
+            return
+        }
+        for (let col = 0; col < n; col++) {
+            if (isValid(row, col, chessBoard, n)) {
+                chessBoard[row][col] = 'Q'
+                backtracing(row + 1, chessBoard)
+                chessBoard[row][col] = '.'
+            }
+        }
+    }
+    let chessBoard = new Array(n).fill([]).map(() => new Array(n).fill('.'))
+    backtracing(0, chessBoard)
+    return result
+};
+// #endregion
+
+
+// 解数独 - 37H
+// #region
+var solveSudoku = function (board) {
+    function isValid(row, col, val, board) {
+        let len = board.length
+        // 行不能重复
+        for (let i = 0; i < len; i++) {
+            if (board[row][i] === val) {
+                return false
+            }
+        }
+        // 列不能重复
+        for (let i = 0; i < len; i++) {
+            if (board[i][col] === val) {
+                return false
+            }
+        }
+        let startRow = Math.floor(row / 3) * 3
+        let startCol = Math.floor(col / 3) * 3
+
+        for (let i = startRow; i < startRow + 3; i++) {
+            for (let j = startCol; j < startCol + 3; j++) {
+                if (board[i][j] === val) {
+                    return false
+                }
+            }
+        }
+
+        return true
+    }
+
+    function backTracking() {
+        for (let i = 0; i < board.length; i++) {
+            for (let j = 0; j < board[0].length; j++) {
+                if (board[i][j] !== '.') continue
+                for (let val = 1; val <= 9; val++) {
+                    if (isValid(i, j, `${val}`, board)) {
+                        board[i][j] = `${val}`
+                        if (backTracking()) {
+                            return true
+                        }
+
+                        board[i][j] = `.`
+                    }
+                }
+                return false
+            }
+        }
+        return true
+    }
+    backTracking(board)
+    return board
+};
+// #endregion
+
+
+// 分发饼干 - 455
+// #region
+var findContentChildren = function (g, s) {
+    g = g.sort((a, b) => a - b)
+    s = s.sort((a, b) => a - b)
+    let result = 0
+    let index = s.length - 1
+    for (let i = g.length - 1; i >= 0; i--) {
+        if (index >= 0 && s[index] >= g[i]) {
+            result++
+            index--
+        }
+    }
+    return result
+};
+// #endregion
+
+
+// 摆动序列 - 376
+// #region
+var wiggleMaxLength = function (nums) {
+    if (nums.length <= 1) return nums.length
+    let result = 1
+    let preDiff = 0
+    let curDiff = 0
+    for (let i = 0; i < nums.length - 1; i++) {
+        curDiff = nums[i + 1] - nums[i]
+        if ((curDiff > 0 && preDiff <= 0) || (curDiff < 0 && preDiff >= 0)) {
+            result++
+            preDiff = curDiff
+        }
+    }
+    return result
+};
+// #endregion
+
+
+// 最大子序和 - 53
+// #region
+var maxSubArray = function (nums) {
+    let result = -Infinity
+    let count = 0
+    for (let i = 0; i < nums.length; i++) {
+        count += nums[i]
+        if (count > result) {
+            result = count
+        }
+        if (count < 0) {
+            count = 0
+        }
+    }
+    return result
+};
+// #endregion
+
+
+// 买卖股票的最佳时机II - 122
+// #region
+var maxProfit = function (prices) {
+    let result = 0
+    for (let i = 1; i < prices.length; i++) {
+        result += Math.max(prices[i] - prices[i - 1], 0)
+    }
+    return result
+};
+// #endregion
+
+
+// 跳跃游戏 - 55
+// #region
+var canJump = function (nums) {
+    if (nums.length === 1) return true
+    let cover = 0
+    for (let i = 0; i <= cover; i++) {
+        cover = Math.max(cover, i + nums[i])
+        if (cover >= nums.length - 1) {
+            return true
+        }
+    }
+    return false
+};
+// #endregion
+
+
+// 跳跃游戏II - 45
+// #region
+var jump = function (nums) {
+    let curIndex = 0
+    let nextIndex = 0
+    let steps = 0
+    for (let i = 0; i < nums.length - 1; i++) {
+        nextIndex = Math.max(nums[i] + i, nextIndex)
+        if (i === curIndex) {
+            curIndex = nextIndex
+            steps++
+        }
+    }
+
+    return steps
+};
+// #endregion
+
+
+// K次取反后最大化的数组和 - 1005
+// #region
+var largestSumAfterKNegations = function (nums, k) {
+    nums.sort((a, b) => Math.abs(b) - Math.abs(a)); // 排序
+    let sum = 0;
+    for (let i = 0; i < nums.length; i++) {
+        if (nums[i] < 0 && k-- > 0) { // 负数取反（k 数量足够时）
+            nums[i] = -nums[i];
+        }
+        sum += nums[i]; // 求和
+    }
+    if (k % 2 > 0) { // k 有多余的（k若消耗完则应为 -1）
+        sum -= 2 * nums[nums.length - 1]; // 减去两倍的最小值（因为之前加过一次）
+    }
+    return sum;
+};
+// #endregion
+
+
+// 加油站 - 134
+// #region
+var canCompleteCircuit = function (gas, cost) {
+    let curSum = 0
+    let min = Infinity
+    for (let i = 0; i < gas.length; i++) {
+        let rest = gas[i] - cost[i]
+        curSum += rest
+        if (curSum < min) {
+            min = curSum
+        }
+    }
+    if (curSum < 0) return -1   //1.总油量 小于 总消耗量
+    if (min >= 0) return 0      //2. 说明油箱里油没断过
+    //3. 从后向前，看哪个节点能这个负数填平，能把这个负数填平的节点就是出发节点
+    for (let i = gas.length - 1; i >= 0; i--) {
+        let rest = gas[i] - cost[i]
+        min += rest
+        if (min >= 0) {
+            return i
+        }
+    }
+    return -1
+}
+// #endregion
+
+
+// 分发糖果 - 135
+// #region
+var candy = function (ratings) {
+    let candys = new Array(ratings.length).fill(1)
+
+    for (let i = 1; i < ratings.length; i++) {
+        if (ratings[i] > ratings[i - 1]) {
+            candys[i] = candys[i - 1] + 1
+        }
+    }
+
+    for (let i = ratings.length - 2; i >= 0; i--) {
+        if (ratings[i] > ratings[i + 1]) {
+            candys[i] = Math.max(candys[i], candys[i + 1] + 1)
+        }
+    }
+
+    let count = candys.reduce((a, b) => {
+        return a + b
+    })
+
+    return count
+};
+// #endregion
+
+
+// 柠檬水找零 - 860
+// #region
+var lemonadeChange = function (bills) {
+    let fiveCount = 0
+    let tenCount = 0
+
+    for (let i = 0; i < bills.length; i++) {
+        let bill = bills[i]
+        if (bill === 5) {
+            fiveCount += 1
+        } else if (bill === 10) {
+            if (fiveCount > 0) {
+                fiveCount -= 1
+                tenCount += 1
+            } else {
+                return false
+            }
+        } else {
+            if (tenCount > 0 && fiveCount > 0) {
+                tenCount -= 1
+                fiveCount -= 1
+            } else if (fiveCount >= 3) {
+                fiveCount -= 3
+            } else {
+                return false
+            }
+        }
+    }
+    return true
+};
+// #endregion
+
+
+// 根据身高重建队列 - 406
+// #region
+var reconstructQueue = function (people) {
+    let queue = []
+    people.sort((a, b) => {
+        if (b[0] !== a[0]) {
+            return b[0] - a[0]
+        } else {
+            return a[1] - b[1]
+        }
+
+    })
+
+    for (let i = 0; i < people.length; i++) {
+        queue.splice(people[i][1], 0, people[i])
+    }
+    return queue
+};
+// #endregion
+
+
+// 用最少数量的箭引爆气球 - 452
+// #region
+var findMinArrowShots = function (points) {
+    points.sort((a, b) => {
+        return a[0] - b[0]
+    })
+    let result = 1
+    for (let i = 1; i < points.length; i++) {
+        if (points[i][0] > points[i - 1][1]) {
+            result++
+        } else {
+            points[i][1] = Math.min(points[i - 1][1], points[i][1])
+        }
+    }
+
+    return result
+};
+// #endregion
+
+
+// 无重叠区间 - 435
+// #region
+var eraseOverlapIntervals = function (intervals) {
+    intervals.sort((a, b) => {
+        return a[0] - b[0]
+    })
+    console.log(intervals)
+    let result = 0
+    for (let i = 1; i < intervals.length; i++) {
+        if (intervals[i][0] < intervals[i - 1][1]) {
+            result++
+            intervals[i][1] = Math.min(intervals[i - 1][1], intervals[i][1])
+        }
+    }
+
+    return result
+};
+// #endregion
+
+
+// 划分字母区间 - 763-
+// #region
+var partitionLabels = function (s) {
+    let hash = {}
+    for (let i = 0; i < s.length; i++) {
+        hash[s[i]] = i
+    }
+    let result = []
+    let left = 0
+    let right = 0
+    for (let i = 0; i < s.length; i++) {
+        right = Math.max(right, hash[s[i]])
+        if (right === i) {
+            result.push(right - left + 1)
+            left = i + 1
+        }
+    }
+    return result
+};
+// #endregion
+
+
+// 合并区间 - 56
+// #region
+var merge = function (intervals) {
+    intervals.sort((a, b) => a[0] - b[0]);
+    let prev = intervals[0]
+    let result = []
+    for (let i = 0; i < intervals.length; i++) {
+        let cur = intervals[i]
+        if (cur[0] > prev[1]) {
+            result.push(prev)
+            prev = cur
+        } else {
+            prev[1] = Math.max(cur[1], prev[1])
+        }
+    }
+    result.push(prev)
+    return result
+};
+// #endregion
+
+
+// 单调递增的数字 - 738
+// #region
+var monotoneIncreasingDigits = function (n) {
+    n = n.toString()
+    n = n.split('').map(item => {
+        return +item
+    })
+    let flag = Infinity
+    for (let i = n.length - 1; i > 0; i--) {
+        if (n[i - 1] > n[i]) {
+            flag = i
+            n[i - 1] = n[i - 1] - 1
+            n[i] = 9
+        }
+    }
+
+    for (let i = flag; i < n.length; i++) {
+        n[i] = 9
+    }
+
+    n = n.join('')
+    return +n
+};
+// #endregion
+
+
+// 买卖股票的最佳时机含手续费 - 714
+// #region
+var maxProfit = function (prices, fee) {
+    let result = 0
+    let minPrice = prices[0]
+    for (let i = 1; i < prices.length; i++) {
+        if (prices[i] < minPrice) {
+            minPrice = prices[i]
+        }
+        if (prices[i] >= minPrice && prices[i] <= minPrice + fee) {
+            continue
+        }
+
+        if (prices[i] > minPrice + fee) {
+            result += prices[i] - minPrice - fee
+            // 买入和卖出只需要支付一次手续费
+            minPrice = prices[i] - fee
+        }
+    }
+    return result
+};
+// #endregion
+
+
+// 监控二叉树 - 968H
+// #region
+var minCameraCover = function (root) {
+    let result = 0
+    function traversal(cur) {
+        if (cur === null) {
+            return 2
+        }
+
+        let left = traversal(cur.left)
+        let right = traversal(cur.right)
+
+        if (left === 2 && right === 2) {
+            return 0
+        }
+
+        if (left === 0 || right === 0) {
+            result++
+            return 1
+        }
+
+        if (left === 1 || right === 1) {
+            return 2
+        }
+
+        return -1
+    }
+
+    if (traversal(root) === 0) {
+        result++
+    }
+
+    return result
+
+};
+// #endregion
+
+
+// 斐波那契数 - 509
+// #region
+var fib = function (n) {
+    let dp = [0, 1]
+    for (let i = 2; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2]
+    }
+    console.log(dp)
+    return dp[n]
+};
+// #endregion
+
+
+// 爬楼梯 - 70
+// #region
+var climbStairs = function (n) {
+    // dp[i] 为第 i 阶楼梯有多少种方法爬到楼顶
+    // dp[i] = dp[i - 1] + dp[i - 2]
+    let dp = [1, 2]
+    for (let i = 2; i < n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2]
+    }
+    return dp[n - 1]
+};
+
+//
+var climbStairs = function(n) {
+    const dp = new Array(n + 1).fill(0);
+    const m = 2;
+    dp[0] = 1;
+    for(let i = 1; i <= n; i++){
+        for(let j = 1; j <= m; j++){
+            if(i >= j) {
+	    	dp[i] += dp[i - j];
+	     }
+        }
+    }
+    return dp[n];
+};
+// #endregion
+
+
+// 使用最小花费爬楼梯 - 746
+// #region
+var minCostClimbingStairs = function (cost) {
+    const n = cost.length;
+    const dp = new Array(n + 1);
+    dp[0] = dp[1] = 0;
+    for (let i = 2; i <= n; ++i) {
+        dp[i] = Math.min(dp[i - 1] + cost[i - 1], dp[i - 2] + cost[i - 2])
+    }
+
+    return dp[n]
+};
+// #endregion
+
+
+// 不同路径 - 62
+// #region
+var uniquePaths = function (m, n) {
+    const dp = Array(m).fill().map(item => Array(n))
+
+    for (let i = 0; i < m; ++i) {
+        dp[i][0] = 1
+    }
+
+    for (let i = 0; i < n; ++i) {
+        dp[0][i] = 1
+    }
+
+    for (let i = 1; i < m; ++i) {
+        for (let j = 1; j < n; ++j) {
+            dp[i][j] = dp[i - 1][j] + dp[i][j - 1]
+        }
+    }
+    return dp[m - 1][n - 1]
+};
+// #endregion
+
+
+// 不同路径II - 63
+// #region
+var uniquePathsWithObstacles = function (obstacleGrid) {
+    const m = obstacleGrid.length
+    const n = obstacleGrid[0].length
+    const dp = Array(m).fill().map(item => Array(n).fill(0))
+
+    for (let i = 0; i < m && obstacleGrid[i][0] === 0; ++i) {
+        dp[i][0] = 1
+    }
+
+    for (let i = 0; i < n && obstacleGrid[0][i] === 0; ++i) {
+        dp[0][i] = 1
+    }
+
+    for (let i = 1; i < m; ++i) {
+        for (let j = 1; j < n; ++j) {
+            dp[i][j] = obstacleGrid[i][j] === 1 ? 0 : dp[i - 1][j] + dp[i][j - 1]
+        }
+    }
+
+    return dp[m - 1][n - 1]
+};
+// #endregion
+
+
+// 整数拆分 - 343
+// #region
+var integerBreak = function(n) {
+    let dp = new Array(n + 1).fill(0)
+    dp[2] = 1
+
+    for(let i = 3; i <= n; i++) {
+        for(let j = 1; j <= i / 2; j++) {
+            dp[i] = Math.max(dp[i], dp[i - j] * j, (i - j) * j)
+        }
+    }
+    return dp[n]
+};
+// #endregion
+
+
+// 不同的二叉搜索树 - 96
+// #region
+const numTrees =(n) => {
+    let dp = new Array(n+1).fill(0);
+    dp[0] = 1;
+    dp[1] = 1;
+
+    for(let i = 2; i <= n; i++) {
+        for(let j = 1; j <= i; j++) {
+            dp[i] += dp[j-1] * dp[i-j];
+        }
+    }
+
+    return dp[n];
+};
+// #endregion
+
+
+// 01背包问题
+// #region
+function testWeightBagProblem (weight, value, size) {
+    // 定义 dp 数组
+    const len = weight.length,
+          dp = Array(len).fill().map(() => Array(size + 1).fill(0));
+
+    // 初始化
+    for(let j = weight[0]; j <= size; j++) {
+        dp[0][j] = value[0];
+    }
+
+    // weight 数组的长度len 就是物品个数
+    for(let i = 1; i < len; i++) { // 遍历物品
+        for(let j = 0; j <= size; j++) { // 遍历背包容量
+            if(j < weight[i]) dp[i][j] = dp[i - 1][j];
+            else dp[i][j] = Math.max(dp[i - 1][j], dp[i - 1][j - weight[i]] + value[i]);
+        }
+    }
+
+    console.table(dp)
+
+    return dp[len - 1][size];
+}
+
+function test () {
+    console.log(testWeightBagProblem([1, 3, 4, 5], [15, 20, 30, 55], 6));
+}
+
+test();
+// #endregion
+
+
+// 分割等和子集 - 416
+// #region
+var canPartition = function(nums) {
+    const sum = (nums.reduce((p, v) => p + v));
+    if (sum & 1) return false;
+    const dp = Array(sum / 2 + 1).fill(0);
+    for(let i = 0; i < nums.length; i++) {
+        for(let j = sum / 2; j >= nums[i]; j--) {
+            dp[j] = Math.max(dp[j], dp[j - nums[i]] + nums[i]);
+            if (dp[j] === sum / 2) {
+                return true;
+            }
+        }
+    }
+    return dp[sum / 2] === sum / 2;
+};
+// #endregion
+
+
+// 最后一块石头的重量 II - 1049
+// #region
+var lastStoneWeightII = function (stones) {
+    let sum = stones.reduce((s, n) => s + n);
+
+    let dpLen = Math.floor(sum / 2);
+    let dp = new Array(dpLen + 1).fill(0);
+
+    for (let i = 0; i < stones.length; ++i) {
+        for (let j = dpLen; j >= stones[i]; --j) {
+            dp[j] = Math.max(dp[j], dp[j - stones[i]] + stones[i]);
+        }
+    }
+
+    return sum - dp[dpLen] - dp[dpLen];
+};
+// #endregion
+
+
+// 目标和 - 494
+// #region
+const findTargetSumWays = (nums, target) => {
+
+    const sum = nums.reduce((a, b) => a+b);
+    
+    if(Math.abs(target) > sum) {
+        return 0;
+    }
+
+    if((target + sum) % 2) {
+        return 0;
+    }
+
+    const halfSum = (target + sum) / 2;
+
+    let dp = new Array(halfSum+1).fill(0);
+    dp[0] = 1;
+
+    for(let i = 0; i < nums.length; i++) {
+        for(let j = halfSum; j >= nums[i]; j--) {
+            dp[j] += dp[j - nums[i]];
+        }
+    }
+
+    return dp[halfSum];
+};
+// #endregion
+
+
+// 零钱兑换 II - 518
+// #region
+const change = (amount, coins) => {
+    let dp = Array(amount + 1).fill(0);
+    dp[0] = 1;
+
+    for(let i =0; i < coins.length; i++) {
+        for(let j = coins[i]; j <= amount; j++) {
+            dp[j] += dp[j - coins[i]];
+        }
+    }
+
+    return dp[amount];
+}
+// #endregion
+
+
+// 组合总和 Ⅳ - 377
+// #region
+const combinationSum4 = (nums, target) => {
+
+    let dp = Array(target + 1).fill(0);
+    dp[0] = 1;
+
+    for(let i = 0; i <= target; i++) {
+        for(let j = 0; j < nums.length; j++) {
+            if (i >= nums[j]) {
+                dp[i] += dp[i - nums[j]];
+            }
+        }
+    }
+
+    return dp[target];
+};
+// #endregion
+
+
+// 零钱兑换 - 322
+// #region
+const coinChange = (coins, amount) => {
+    if(!amount) {
+        return 0;
+    }
+
+    let dp = Array(amount + 1).fill(Infinity);
+    dp[0] = 0;
+
+    for(let i =0; i < coins.length; i++) {
+        for(let j = coins[i]; j <= amount; j++) {
+            dp[j] = Math.min(dp[j - coins[i]] + 1, dp[j]);
+        }
+    }
+
+    return dp[amount] === Infinity ? -1 : dp[amount];
+}
+// #endregion
+
+
+// 完全平方数 - 279
+// #region
+// 先遍历物品，再遍历背包
+var numSquares1 = function(n) {
+    let dp = new Array(n + 1).fill(Infinity)
+    dp[0] = 0
+
+    for(let i = 1; i**2 <= n; i++) {
+        let val = i**2
+        for(let j = val; j <= n; j++) {
+            dp[j] = Math.min(dp[j], dp[j - val] + 1)
+        }
+    }
+    return dp[n]
+};
+// 先遍历背包，再遍历物品
+var numSquares2 = function(n) {
+    let dp = new Array(n + 1).fill(Infinity)
+    dp[0] = 0
+
+    for(let i = 1; i <= n; i++) {
+        for(let j = 1; j * j <= i; j++) {
+            dp[i] = Math.min(dp[i - j * j] + 1, dp[i])
+        }
+    }
+
+    return dp[n]
+};
+// #endregion
+
+
+// 单词拆分 - 139
+// #region
+const wordBreak = (s, wordDict) => {
+
+    let dp = Array(s.length + 1).fill(false);
+    dp[0] = true;
+
+    for(let i = 0; i <= s.length; i++){
+        for(let j = 0; j < wordDict.length; j++) {
+            if(i >= wordDict[j].length) {
+                if(s.slice(i - wordDict[j].length, i) === wordDict[j] && dp[i - wordDict[j].length]) {
+                    dp[i] = true
+                }
+            }
+        }
+    }
+
+    return dp[s.length];
+}
+// #endregion
+
+
+// 打家劫舍 - 198
+// #region
+const rob = nums => {
+    // 数组长度
+    const len = nums.length;
+    // dp数组初始化
+    const dp = [nums[0], Math.max(nums[0], nums[1])];
+    // 从下标2开始遍历
+    for (let i = 2; i < len; i++) {
+        dp[i] = Math.max(dp[i - 2] + nums[i], dp[i - 1]);
+    }
+    return dp[len - 1];
+};
+// #endregion
+
+
+// 打家劫舍II - 213
+// #region
+var rob1 = function(nums) {
+    const n = nums.length
+    if (n === 0) return 0
+    if (n === 1) return nums[0]
+    const result1 = robRange(nums, 0, n - 2)
+    const result2 = robRange(nums, 1, n - 1)
+    return Math.max(result1, result2)
+  };
+  
+  const robRange = (nums, start, end) => {
+    if (end === start) return nums[start]
+    const dp = Array(nums.length).fill(0)
+    dp[start] = nums[start]
+    dp[start + 1] = Math.max(nums[start], nums[start + 1])
+    for (let i = start + 2; i <= end; i++) {
+      dp[i] = Math.max(dp[i - 2] + nums[i], dp[i - 1])
+    }
+    return dp[end]
+  }
+// #endregion
+
+
+// 打家劫舍III - 337
+// #region
+const rob2 = root => {
+    // 后序遍历函数
+    const postOrder = node => {
+        // 递归出口
+        if (!node) return [0, 0];
+        // 遍历左子树
+        const left = postOrder(node.left);
+        // 遍历右子树
+        const right = postOrder(node.right);
+        // 不偷当前节点，左右子节点都可以偷或不偷，取最大值
+        const DoNot = Math.max(left[0], left[1]) + Math.max(right[0], right[1]);
+        // 偷当前节点，左右子节点只能不偷
+        const Do = node.val + left[0] + right[0];
+        // [不偷，偷]
+        return [DoNot, Do];
+    };
+    const res = postOrder(root);
+    // 返回最大值
+    return Math.max(...res);
+};
+// #endregion
+
+
+// 买卖股票的最佳时机 - 121
+// #region
+const maxProfit = prices => {
+    const len = prices.length;
+    // 创建dp数组
+    const dp = new Array(len).fill([0, 0]);
+    // dp数组初始化
+    dp[0] = [-prices[0], 0];
+    for (let i = 1; i < len; i++) {
+        // 更新dp[i]
+        dp[i] = [
+            Math.max(dp[i - 1][0], -prices[i]),
+            Math.max(dp[i - 1][1], prices[i] + dp[i - 1][0]),
+        ];
+    }
+    return dp[len - 1][1];
+};
+// #endregion
+
+
+// 买卖股票的最佳时机II - 122
+// #region
+// 方法一：动态规划（dp 数组）
+const maxProfit = (prices) => {
+    let dp = Array.from(Array(prices.length), () => Array(2).fill(0));
+    // dp[i][0] 表示第i天持有股票所得现金。
+    // dp[i][1] 表示第i天不持有股票所得最多现金
+    dp[0][0] = 0 - prices[0];
+    dp[0][1] = 0;
+    for(let i = 1; i < prices.length; i++) {
+        // 如果第i天持有股票即dp[i][0]， 那么可以由两个状态推出来
+        // 第i-1天就持有股票，那么就保持现状，所得现金就是昨天持有股票的所得现金 即：dp[i - 1][0]
+        // 第i天买入股票，所得现金就是昨天不持有股票的所得现金减去 今天的股票价格 即：dp[i - 1][1] - prices[i]
+        dp[i][0] = Math.max(dp[i-1][0], dp[i-1][1] - prices[i]);
+        
+        // 在来看看如果第i天不持有股票即dp[i][1]的情况， 依然可以由两个状态推出来
+        // 第i-1天就不持有股票，那么就保持现状，所得现金就是昨天不持有股票的所得现金 即：dp[i - 1][1]
+        // 第i天卖出股票，所得现金就是按照今天股票佳价格卖出后所得现金即：prices[i] + dp[i - 1][0]
+        dp[i][1] = Math.max(dp[i-1][1], dp[i-1][0] + prices[i]);
+    }
+
+    return dp[prices.length -1][1];
+};
+
+// 方法二：动态规划（滚动数组）
+const maxProfit = (prices) => {
+    // 滚动数组
+    // have: 第i天持有股票最大收益; notHave: 第i天不持有股票最大收益
+    let n = prices.length,
+        have = -prices[0],
+        notHave = 0;
+    for (let i = 1; i < n; i++) {
+        have = Math.max(have, notHave - prices[i]);
+        notHave = Math.max(notHave, have + prices[i]);
+    }
+    // 最终手里不持有股票才能保证收益最大化
+    return notHave;
+}
+// #endregion
+
+
+// 每日温度 - 739
+// #region
+var dailyTemperatures = function(temperatures) {
+    const n = temperatures.length;
+    const res = Array(n).fill(0);
+    const stack = [];  // 递增栈：用于存储元素右面第一个比他大的元素下标
+    stack.push(0);
+    for (let i = 1; i < n; i++) {
+        while (stack.length && temperatures[i] > temperatures[stack[stack.length - 1]]) {
+            const top = stack.pop();
+            res[top] = i - top;
+        }
+        stack.push(i);
+    }
+    return res;
+};
+// #endregion
+
+
+// 下一个更大元素I - 496
+// #region
+var nextGreaterElement = function (nums1, nums2) {
+    let stack = [];
+    let map = new Map();
+    for (let i = 0; i < nums2.length; i++) {
+      while (stack.length && nums2[i] > nums2[stack[stack.length - 1]]) {
+        let index = stack.pop();
+        map.set(nums2[index], nums2[i]);
+      }
+      stack.push(i);
+    }
+  
+    let res = [];
+    for (let j = 0; j < nums1.length; j++) {
+      res[j] = map.get(nums1[j]) || -1;
+    }
+  
+    return res;
+  };
+// #endregion
+
+
+// 下一个更大元素II - 503
+// #region
+var nextGreaterElements = function (nums) {
+    const len = nums.length;
+    let stack = [];
+    let res = Array(len).fill(-1);
+    for (let i = 0; i < len * 2; i++) {
+      while (
+        stack.length &&
+        nums[i % len] > nums[stack[stack.length - 1]]
+      ) {
+        const index = stack.pop();
+        res[index] = nums[i % len];
+      }
+      stack.push(i % len);
+    }
+    return res;
+  };
+// #endregion
+
+
+// All Paths From Source to Target - 797
+// #region
+var allPathsSourceTarget = function(graph) {
+    const target = graph.length - 1;
+    const res = [];
+    const DFS = (node,path) => {
+        path.push(node);
+		// if we've reached the target, we've found a path
+        if(node === target) { 
+            res.push(path);
+            return;
+        }
+            
+        for(let edge of graph[node]) {
+            DFS(edge,[...path]);
+        }
+    }
+    
+    DFS(0,[]);
+    
+    return res;
+};
+// #endregion
